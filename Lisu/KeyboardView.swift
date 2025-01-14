@@ -20,7 +20,7 @@ struct KeyboardView: View {
             
             if keyboardWidth > 0 && keyboardHeight > 0 {
                 ZStack {
-                    KeyboardContentView(keyboardWidth: keyboardWidth, keyboardHeight: keyboardHeight, keyboardState: keyboardState)
+                    KeyboardContentView(keyboardWidth: keyboardWidth, keyboardHeight: keyboardHeight,layout: layout, keyboardState: keyboardState)
                     // Popover
                     if let showingKey = keyboardState.showingPopover {
                         if !isSpecialKey(showingKey) {
@@ -84,11 +84,10 @@ struct KeyboardView: View {
 struct KeyboardContentView: View {
     let keyboardWidth: CGFloat
     let keyboardHeight: CGFloat
+    let layout: KeyboardLayout
     @ObservedObject var keyboardState: KeyboardState
 
     var body: some View {
-        let layout = keyboardState.getCurrentLayout()
-
         VStack(spacing: KeyboardConstants.rowSpacing) {
             Spacer(minLength: 0)
             ForEach(layout.rows.indices, id: \.self) { rowIndex in
@@ -101,7 +100,6 @@ struct KeyboardContentView: View {
                         )
                     }
                 }
-                .padding(.vertical, KeyboardConstants.rowVerticalPadding * (DeviceHelper.isLandscape() ? 0.1 : 0.2))
                 .padding(.horizontal, KeyboardConstants.keySpacing)
             }
         }
@@ -180,6 +178,12 @@ struct KeyButton: View {
         default:
             let keyToSend = keyboardState.isShifted ? key.uppercased() : key
             NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: keyToSend)
+            // Reset shift state after key press
+            if keyboardState.isShifted {
+                withAnimation(.spring(response: 0.2)) {
+                    keyboardState.toggleShift()
+                }
+            }
         }
     }
     

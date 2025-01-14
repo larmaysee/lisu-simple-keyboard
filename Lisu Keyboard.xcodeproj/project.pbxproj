@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D98010EF2D3669200037A0DD /* Lisu.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D98010E82D36691F0037A0DD /* Lisu.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D98010C82D3669040037A0DD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,13 +25,45 @@
 			remoteGlobalIDString = D98010B62D3669010037A0DD;
 			remoteInfo = "Lisu Keyboard";
 		};
+		D98010ED2D3669200037A0DD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D98010AF2D3669010037A0DD /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D98010E72D36691F0037A0DD;
+			remoteInfo = Lisu;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D98010F42D3669200037A0DD /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D98010EF2D3669200037A0DD /* Lisu.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D98010B72D3669010037A0DD /* Lisu Keyboard.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Lisu Keyboard.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D98010C72D3669040037A0DD /* Lisu KeyboardTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lisu KeyboardTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D98010D12D3669040037A0DD /* Lisu KeyboardUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Lisu KeyboardUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D98010E82D36691F0037A0DD /* Lisu.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Lisu.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D98010F02D3669200037A0DD /* Exceptions for "Lisu" folder in "Lisu" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D98010E72D36691F0037A0DD /* Lisu */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D98010B92D3669010037A0DD /* Lisu Keyboard */ = {
@@ -43,6 +79,19 @@
 		D98010D42D3669040037A0DD /* Lisu KeyboardUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Lisu KeyboardUITests";
+			sourceTree = "<group>";
+		};
+		D98010E92D3669200037A0DD /* Lisu */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D98010F02D3669200037A0DD /* Exceptions for "Lisu" folder in "Lisu" target */,
+			);
+			path = Lisu;
+			sourceTree = "<group>";
+		};
+		D980110F2D366AE00037A0DD /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,15 +118,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D98010E52D36691F0037A0DD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		D98010AE2D3669010037A0DD = {
 			isa = PBXGroup;
 			children = (
+				D980110F2D366AE00037A0DD /* Shared */,
 				D98010B92D3669010037A0DD /* Lisu Keyboard */,
 				D98010CA2D3669040037A0DD /* Lisu KeyboardTests */,
 				D98010D42D3669040037A0DD /* Lisu KeyboardUITests */,
+				D98010E92D3669200037A0DD /* Lisu */,
 				D98010B82D3669010037A0DD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +146,7 @@
 				D98010B72D3669010037A0DD /* Lisu Keyboard.app */,
 				D98010C72D3669040037A0DD /* Lisu KeyboardTests.xctest */,
 				D98010D12D3669040037A0DD /* Lisu KeyboardUITests.xctest */,
+				D98010E82D36691F0037A0DD /* Lisu.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,10 +161,12 @@
 				D98010B32D3669010037A0DD /* Sources */,
 				D98010B42D3669010037A0DD /* Frameworks */,
 				D98010B52D3669010037A0DD /* Resources */,
+				D98010F42D3669200037A0DD /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D98010EE2D3669200037A0DD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D98010B92D3669010037A0DD /* Lisu Keyboard */,
@@ -163,6 +224,29 @@
 			productReference = D98010D12D3669040037A0DD /* Lisu KeyboardUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		D98010E72D36691F0037A0DD /* Lisu */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D98010F12D3669200037A0DD /* Build configuration list for PBXNativeTarget "Lisu" */;
+			buildPhases = (
+				D98010E42D36691F0037A0DD /* Sources */,
+				D98010E52D36691F0037A0DD /* Frameworks */,
+				D98010E62D36691F0037A0DD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				D98010E92D3669200037A0DD /* Lisu */,
+				D980110F2D366AE00037A0DD /* Shared */,
+			);
+			name = Lisu;
+			packageProductDependencies = (
+			);
+			productName = Lisu;
+			productReference = D98010E82D36691F0037A0DD /* Lisu.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +268,9 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = D98010B62D3669010037A0DD;
 					};
+					D98010E72D36691F0037A0DD = {
+						CreatedOnToolsVersion = 16.2;
+					};
 				};
 			};
 			buildConfigurationList = D98010B22D3669010037A0DD /* Build configuration list for PBXProject "Lisu Keyboard" */;
@@ -203,6 +290,7 @@
 				D98010B62D3669010037A0DD /* Lisu Keyboard */,
 				D98010C62D3669040037A0DD /* Lisu KeyboardTests */,
 				D98010D02D3669040037A0DD /* Lisu KeyboardUITests */,
+				D98010E72D36691F0037A0DD /* Lisu */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +311,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D98010CF2D3669040037A0DD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D98010E62D36691F0037A0DD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +348,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D98010E42D36691F0037A0DD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +367,11 @@
 			isa = PBXTargetDependency;
 			target = D98010B62D3669010037A0DD /* Lisu Keyboard */;
 			targetProxy = D98010D22D3669040037A0DD /* PBXContainerItemProxy */;
+		};
+		D98010EE2D3669200037A0DD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D98010E72D36691F0037A0DD /* Lisu */;
+			targetProxy = D98010ED2D3669200037A0DD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -518,6 +625,56 @@
 			};
 			name = Release;
 		};
+		D98010F22D3669200037A0DD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B88283P8VG;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Lisu/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Lisu;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "co.codibyte.Lisu-Keyboard.Lisu";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		D98010F32D3669200037A0DD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B88283P8VG;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Lisu/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Lisu;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "co.codibyte.Lisu-Keyboard.Lisu";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -553,6 +710,15 @@
 			buildConfigurations = (
 				D98010E22D3669040037A0DD /* Debug */,
 				D98010E32D3669040037A0DD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D98010F12D3669200037A0DD /* Build configuration list for PBXNativeTarget "Lisu" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D98010F22D3669200037A0DD /* Debug */,
+				D98010F32D3669200037A0DD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

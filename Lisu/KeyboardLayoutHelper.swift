@@ -111,8 +111,8 @@ enum KeyboardLayoutHelper {
         let baseHeight = availableHeight / CGFloat(KeyboardConstants.numberOfRows)
         
         // Set minimum and maximum heights based on device and orientation
-        let minHeight: CGFloat = isLandscape ? 32 : 40
-        let maxHeight: CGFloat = isLandscape ? 40 : 45
+        let minHeight: CGFloat = isLandscape ? 32 : 38
+        let maxHeight: CGFloat = isLandscape ? 38 : 45
         
         return max(min(baseHeight, maxHeight), minHeight)
     }

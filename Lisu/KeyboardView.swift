@@ -117,15 +117,15 @@ struct KeyButton: View {
     @State private var isPressed: Bool = false
     
     var body: some View {
-        ZStack {
-            backgroundColor
-                .clipShape(RoundedCorner(
-                    radius: 5,
-                    corners: isPressed && !isSpecialKey ? [.bottomLeft, .bottomRight] : .allCorners
-                ))
-                .shadow(color: Color.black.opacity(0.35), radius: 0.5, x: 0, y: 1)
-            
-            Button(action: handleKeyPress) {
+        Button(action: handleKeyPress) {
+            ZStack {
+                backgroundColor
+                    .clipShape(RoundedCorner(
+                        radius: 5,
+                        corners: isPressed && !isSpecialKey ? [.bottomLeft, .bottomRight] : .allCorners
+                    ))
+                    .shadow(color: Color.black.opacity(0.35), radius: 0.5, x: 0, y: 1)
+                
                 keyContent
             }
         }
@@ -211,10 +211,18 @@ struct KeyButton: View {
                 Image(systemName: "return")
                     .font(.system(size: 20))
             case "space":
-                Text(keyboardState.showKeyboardName ? "Lisu" : "space")
-                    .font(.system(size: 18))
-                    .transition(.opacity.combined(with: .scale))
-                    .animation(.linear(duration: 0.5), value: keyboardState.showKeyboardName)
+                ZStack {
+                    if keyboardState.showKeyboardName {
+                        Text("Lisu")
+                            .font(.system(size: 18))
+                            .transition(.opacity.combined(with: .scale))
+                    } else {
+                        Text("space")
+                            .font(.system(size: 18))
+                            .transition(.opacity.combined(with: .scale))
+                    }
+                }
+                .animation(.linear(duration: 0.5), value: keyboardState.showKeyboardName)
             case "keyboardchange":
                 Image(systemName: "globe")
                     .font(.system(size: 20))

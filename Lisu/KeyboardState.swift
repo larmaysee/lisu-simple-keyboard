@@ -16,7 +16,14 @@ class KeyboardState: ObservableObject {
     
     static let shared = KeyboardState()
     
-    private init() {}
+    private init() {
+        // Automatically hide keyboard name after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            withAnimation(.linear(duration: 0.5)) {
+                self.showKeyboardName = false
+            }
+        }
+    }
     
     func getCurrentLayout() -> KeyboardLayout {
         return KeyboardLayout.getCurrentLayout(

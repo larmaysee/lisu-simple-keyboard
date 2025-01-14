@@ -7,56 +7,49 @@
 
 import SwiftUI
 
+// MARK: - Keyboard Notification Names
+enum KeyboardNotification {
+    static let addKey = NSNotification.Name("addKey")
+    static let deleteKey = NSNotification.Name("deleteKey")
+    static let keyboardChange = NSNotification.Name("keyboardchange")
+    static let returnKey = NSNotification.Name("return")
+}
+
 class KeyboardViewController: UIInputViewController {
     
+    // MARK: - Properties
     @IBOutlet var nextKeyboardButton: UIButton!
     private var heightConstraint: NSLayoutConstraint?
     private var keyboardView: UIView?
     private var hostingController: UIHostingController<KeyboardView>?
     
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         setupKeyboardView()
         setupNextKeyboardButton()
         setupNotificationObservers()
-        
-        // Register for trait changes
+        setupTraitChangeObserver()
+    }
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
+        updateNextKeyboardButtonVisibility()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateNextKeyboardButtonVisibility()
+    }
+    
+    // MARK: - Setup Methods
+    private func setupTraitChangeObserver() {
         if #available(iOS 17.0, *) {
             registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self]) { (self: KeyboardViewController, _) in
                 self.view.frame.size.height = DeviceHelper.getKeyboardHeight()
             }
         }
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleAddKey(_:)),
-            name: NSNotification.Name("addKey"),
-            object: nil
-        )
-        
-        // Delete key notification
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleDeleteKey(_:)),
-            name: NSNotification.Name("deleteKey"),
-            object: nil
-        )
-        
-        // Keyboard change notification
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleKeyboardChange(_:)),
-            name: NSNotification.Name("keyboardchange"),
-            object: nil
-        )
-        
-        // Return key notification
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(handleReturn(_:)),
-            name: NSNotification.Name("return"),
-            object: nil
-        )
     }
     
     private func setupKeyboardView() {
@@ -67,21 +60,23 @@ class KeyboardViewController: UIInputViewController {
         view.addSubview(hostingController.view)
         hostingController.didMove(toParent: self)
         
-        // Setup constraints
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            hostingController.view.leftAnchor.constraint(equalTo: view.leftAnchor),
-            hostingController.view.rightAnchor.constraint(equalTo: view.rightAnchor),
-            hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
+        configureKeyboardConstraints(for: hostingController.view)
         
         self.keyboardView = hostingController.view
         self.hostingController = hostingController
         
-        // Set initial height
         heightConstraint = view.heightAnchor.constraint(equalToConstant: DeviceHelper.getKeyboardHeight())
         heightConstraint?.isActive = true
+    }
+    
+    private func configureKeyboardConstraints(for view: UIView) {
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.leftAnchor.constraint(equalTo: self.view.leftAnchor),
+            view.rightAnchor.constraint(equalTo: self.view.rightAnchor),
+            view.topAnchor.constraint(equalTo: self.view.topAnchor),
+            view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+        ])
     }
     
     private func setupNextKeyboardButton() {
@@ -100,52 +95,22 @@ class KeyboardViewController: UIInputViewController {
     }
     
     private func setupNotificationObservers() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(orientationDidChange),
-            name: UIDevice.orientationDidChangeNotification,
-            object: nil
-        )
+        let notificationCenter = NotificationCenter.default
+        
+        // Keyboard input notifications
+        notificationCenter.addObserver(self, selector: #selector(handleAddKey), name: KeyboardNotification.addKey, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleDeleteKey), name: KeyboardNotification.deleteKey, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleKeyboardChange), name: KeyboardNotification.keyboardChange, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleReturn), name: KeyboardNotification.returnKey, object: nil)
+        
+        // Device orientation notification
+        notificationCenter.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
     
-    private func updateNextKeyboardButtonVisibility() {
-        if DeviceHelper.isIPad() {
-            // Always hide the button on iPad
-            self.nextKeyboardButton.isHidden = true
-        } else {
-            // On iPhone, show based on system needs
-            self.nextKeyboardButton.isHidden = !self.needsInputModeSwitchKey
-        }
-    }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
-        updateNextKeyboardButtonVisibility()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        updateNextKeyboardButtonVisibility()
-    }
-    
-    override func textDidChange(_ textInput: UITextInput?) {
-        super.textDidChange(textInput)
-        updateNextKeyboardButtonVisibility()
-        var textColor: UIColor
-        let proxy = self.textDocumentProxy
-        if proxy.keyboardAppearance == UIKeyboardAppearance.dark {
-            textColor = UIColor.white
-        } else {
-            textColor = UIColor.black
-        }
-        self.nextKeyboardButton.setTitleColor(textColor, for: [])
-    }
-    
+    // MARK: - Keyboard Input Handlers
     @objc private func handleAddKey(_ notification: Notification) {
-        if let text = notification.object as? String {
-            textDocumentProxy.insertText(text)
-        }
+        guard let text = notification.object as? String else { return }
+        textDocumentProxy.insertText(text)
     }
     
     @objc private func handleDeleteKey(_ notification: Notification) {
@@ -153,7 +118,8 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @objc private func handleKeyboardChange(_ notification: Notification) {
-        advanceToNextInputMode()
+        guard let type = notification.object as? String else { return }
+        textDocumentProxy.insertText(type)
     }
     
     @objc private func handleReturn(_ notification: Notification) {
@@ -161,11 +127,25 @@ class KeyboardViewController: UIInputViewController {
     }
     
     @objc private func orientationDidChange() {
-        view.setNeedsLayout()
+        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
+    }
+}
+
+// MARK: - Appearance Methods
+extension KeyboardViewController {
+    override func textDidChange(_ textInput: UITextInput?) {
+        super.textDidChange(textInput)
+        updateNextKeyboardButtonVisibility()
+        updateNextKeyboardButtonColor()
     }
     
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    private func updateNextKeyboardButtonVisibility() {
+        nextKeyboardButton.isHidden = DeviceHelper.isIPad() ? true : !needsInputModeSwitchKey
+    }
+    
+    private func updateNextKeyboardButtonColor() {
+        let textColor = textDocumentProxy.keyboardAppearance == .dark ? UIColor.white : UIColor.black
+        nextKeyboardButton.setTitleColor(textColor, for: [])
     }
 }
 

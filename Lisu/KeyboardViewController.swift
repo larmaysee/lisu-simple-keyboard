@@ -19,7 +19,6 @@ class KeyboardViewController: UIInputViewController {
     
     // MARK: - Properties
     @IBOutlet var nextKeyboardButton: UIButton!
-    private var heightConstraint: NSLayoutConstraint?
     private var keyboardView: UIView?
     private var hostingController: UIHostingController<KeyboardView>?
     
@@ -29,29 +28,9 @@ class KeyboardViewController: UIInputViewController {
         setupKeyboardView()
         setupNextKeyboardButton()
         setupNotificationObservers()
-        setupTraitChangeObserver()
-    }
-    
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
-        updateNextKeyboardButtonVisibility()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        updateNextKeyboardButtonVisibility()
     }
     
     // MARK: - Setup Methods
-    private func setupTraitChangeObserver() {
-        if #available(iOS 17.0, *) {
-            registerForTraitChanges([UITraitHorizontalSizeClass.self, UITraitVerticalSizeClass.self]) { (self: KeyboardViewController, _) in
-                self.view.frame.size.height = DeviceHelper.getKeyboardHeight()
-            }
-        }
-    }
-    
     private func setupKeyboardView() {
         let keyboardView = KeyboardView()
         let hostingController = UIHostingController(rootView: keyboardView)
@@ -64,9 +43,6 @@ class KeyboardViewController: UIInputViewController {
         
         self.keyboardView = hostingController.view
         self.hostingController = hostingController
-        
-        heightConstraint = view.heightAnchor.constraint(equalToConstant: DeviceHelper.getKeyboardHeight())
-        heightConstraint?.isActive = true
     }
     
     private func configureKeyboardConstraints(for view: UIView) {
@@ -102,9 +78,6 @@ class KeyboardViewController: UIInputViewController {
         notificationCenter.addObserver(self, selector: #selector(handleDeleteKey), name: KeyboardNotification.deleteKey, object: nil)
         notificationCenter.addObserver(self, selector: #selector(handleKeyboardChange), name: KeyboardNotification.keyboardChange, object: nil)
         notificationCenter.addObserver(self, selector: #selector(handleReturn), name: KeyboardNotification.returnKey, object: nil)
-        
-        // Device orientation notification
-        notificationCenter.addObserver(self, selector: #selector(orientationDidChange), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
     
     // MARK: - Keyboard Input Handlers
@@ -124,10 +97,6 @@ class KeyboardViewController: UIInputViewController {
     
     @objc private func handleReturn(_ notification: Notification) {
         textDocumentProxy.insertText("\n")
-    }
-    
-    @objc private func orientationDidChange() {
-        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
     }
 }
 

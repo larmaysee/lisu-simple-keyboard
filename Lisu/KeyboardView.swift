@@ -13,52 +13,35 @@ struct KeyboardView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            GeometryReader { geometry in
-                let layout = keyboardState.getCurrentLayout()
-                let keyboardWidth = geometry.size.width
-                let keyboardHeight = geometry.size.height
-                
-                if keyboardWidth > 0 && keyboardHeight > 0 {
-                    ZStack {
-                        VStack(spacing: KeyboardConstants.rowSpacing) {
-                            Spacer(minLength: 0)
-                            ForEach(layout.rows.indices, id: \.self) { rowIndex in
-                                HStack(spacing: KeyboardConstants.keySpacing) {
-                                    ForEach(layout.rows[rowIndex], id: \.self) { key in
-                                        KeyButton(
-                                            key: key,
-                                            width: KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: layout.rows[rowIndex]),
-                                            height: KeyboardLayoutHelper.getKeyHeight(totalHeight: keyboardHeight)
-                                        )
-                                    }
-                                }
-                                .padding(.vertical, KeyboardConstants.rowVerticalPadding * (DeviceHelper.isLandscape() ? 0.1 : 0.2))
-                                .padding(.horizontal, KeyboardConstants.keySpacing)
-                            }
-                        }
-                        .padding(.vertical, KeyboardConstants.verticalPadding * (DeviceHelper.isLandscape() ? 0.3 : 0.5))
-                        
-                        // Popover
-                        if let showingKey = keyboardState.showingPopover {
-                            if !isSpecialKey(showingKey) {
-                                GeometryReader { geometry in
-                                    if let buttonFrame = getButtonFrame(for: showingKey, in: geometry, layout: layout, keyboardWidth: keyboardWidth) {
-                                        KeyPopoverView(key: showingKey, width: buttonFrame.width)
-                                            .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
-                                            .transition(.opacity)
-                                            .zIndex(1)
-                                    }
+            let layout = keyboardState.getCurrentLayout()
+            let keyboardWidth = UIScreen.main.bounds.width
+            let keyboardHeight = UIScreen.main.bounds.height
+            
+            if keyboardWidth > 0 && keyboardHeight > 0 {
+                ZStack {
+                    KeyboardContentView(keyboardWidth: keyboardWidth, keyboardHeight: keyboardHeight, keyboardState: keyboardState)
+                    // Popover
+                    if let showingKey = keyboardState.showingPopover {
+                        if !isSpecialKey(showingKey) {
+                            GeometryReader { geometry in
+                                if let buttonFrame = getButtonFrame(for: showingKey, in: geometry, layout: layout, keyboardWidth: keyboardWidth) {
+                                    KeyPopoverView(key: showingKey, width: buttonFrame.width)
+                                        .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
+                                        .transition(.opacity)
+                                        .zIndex(1)
                                 }
                             }
                         }
                     }
-                }
+                } .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(KeyboardConstants.keyboardBackgroundColor)
+                    .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                        orientation = UIDevice.current.orientation
+                        
+                        print("Orientation changed to: \(orientation)")
+                    }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(KeyboardConstants.keyboardBackgroundColor)
-            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-                orientation = UIDevice.current.orientation
-            }
+           
         }
         .preferredColorScheme(ThemeSettings.shared.getCurrentColorScheme())
     }
@@ -88,6 +71,34 @@ struct KeyboardView: View {
         }
         
         return nil
+    }
+}
+
+struct KeyboardContentView: View {
+    let keyboardWidth: CGFloat
+    let keyboardHeight: CGFloat
+    @ObservedObject var keyboardState: KeyboardState
+
+    var body: some View {
+        let layout = keyboardState.getCurrentLayout()
+
+        VStack(spacing: KeyboardConstants.rowSpacing) {
+            Spacer(minLength: 0)
+            ForEach(layout.rows.indices, id: \.self) { rowIndex in
+                HStack(spacing: KeyboardConstants.keySpacing) {
+                    ForEach(layout.rows[rowIndex], id: \.self) { key in
+                        KeyButton(
+                            key: key,
+                            width: KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: layout.rows[rowIndex]),
+                            height: KeyboardLayoutHelper.getKeyHeight(totalHeight: keyboardHeight)
+                        )
+                    }
+                }
+                .padding(.vertical, KeyboardConstants.rowVerticalPadding * (DeviceHelper.isLandscape() ? 0.1 : 0.2))
+                .padding(.horizontal, KeyboardConstants.keySpacing)
+            }
+        }
+        .padding(.vertical, KeyboardConstants.verticalPadding * (DeviceHelper.isLandscape() ? 0.3 : 0.5))
     }
 }
 

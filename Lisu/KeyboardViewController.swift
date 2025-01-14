@@ -30,6 +30,20 @@ class KeyboardViewController: UIInputViewController {
         setupNotificationObservers()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let inputView = self.view as? UIInputView {
+            // Ensure the keyboard has the correct height
+            self.view.frame.size = inputView.frame.size
+        }
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Update hosting controller view frame
+        hostingController?.view.frame = view.bounds
+    }
+    
     // MARK: - Setup Methods
     private func setupKeyboardView() {
         let orientationManager = OrientationManager()
@@ -50,13 +64,13 @@ class KeyboardViewController: UIInputViewController {
         }
     }
     
-    private func configureKeyboardConstraints(for view: UIView) {
-        view.translatesAutoresizingMaskIntoConstraints = false
+    private func configureKeyboardConstraints(for keyboardView: UIView) {
+        keyboardView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            view.leftAnchor.constraint(equalTo: self.view.leftAnchor),
-            view.rightAnchor.constraint(equalTo: self.view.rightAnchor),
-            view.topAnchor.constraint(equalTo: self.view.topAnchor),
-            view.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            keyboardView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            keyboardView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            keyboardView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            keyboardView.topAnchor.constraint(equalTo: view.topAnchor)
         ])
     }
     
@@ -79,10 +93,10 @@ class KeyboardViewController: UIInputViewController {
         let notificationCenter = NotificationCenter.default
         
         // Keyboard input notifications
-        notificationCenter.addObserver(self, selector: #selector(handleAddKey), name: KeyboardNotification.addKey, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(handleDeleteKey), name: KeyboardNotification.deleteKey, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleKeyPress(_:)), name: KeyboardNotification.addKey, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleDelete), name: KeyboardNotification.deleteKey, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(handleReturn(_:)), name: KeyboardNotification.returnKey, object: nil)
         notificationCenter.addObserver(self, selector: #selector(handleKeyboardChange), name: KeyboardNotification.keyboardChange, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(handleReturn), name: KeyboardNotification.returnKey, object: nil)
         // Orientation change notification
         notificationCenter.addObserver(self, selector: #selector(handleOrientationChange), name: UIDevice.orientationDidChangeNotification, object: nil)
     }
@@ -110,22 +124,25 @@ class KeyboardViewController: UIInputViewController {
     }
     
     // MARK: - Keyboard Input Handlers
-    @objc private func handleAddKey(_ notification: Notification) {
+    @objc private func handleKeyPress(_ notification: Notification) {
         guard let text = notification.object as? String else { return }
         textDocumentProxy.insertText(text)
+        SoundManager.shared.playKeyClick()
     }
     
-    @objc private func handleDeleteKey(_ notification: Notification) {
+    @objc private func handleDelete() {
         textDocumentProxy.deleteBackward()
-    }
-    
-    @objc private func handleKeyboardChange(_ notification: Notification) {
-        guard let type = notification.object as? String else { return }
-        textDocumentProxy.insertText(type)
+        SoundManager.shared.playKeyClick()
     }
     
     @objc private func handleReturn(_ notification: Notification) {
         textDocumentProxy.insertText("\n")
+        SoundManager.shared.playKeyClick()
+    }
+    
+    @objc private func handleKeyboardChange() {
+        advanceToNextInputMode()
+        SoundManager.shared.playKeyClick()
     }
 }
 

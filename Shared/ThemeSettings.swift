@@ -18,7 +18,7 @@ class ThemeSettings {
     static let shared = ThemeSettings()
     
     // Use App Groups to share settings between main app and keyboard extension
-    private let defaults = UserDefaults(suiteName: "group.com.yourdomain.lisu-keyboard")!
+    private let defaults = UserDefaults(suiteName: "group.co.codibyte.Lisu-Keyboard")!
     private let themeKey = "selectedTheme"
     
     private init() {}

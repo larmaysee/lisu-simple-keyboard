@@ -32,7 +32,8 @@ class KeyboardViewController: UIInputViewController {
     
     // MARK: - Setup Methods
     private func setupKeyboardView() {
-        let keyboardView = KeyboardView()
+        let orientationManager = OrientationManager()
+        let keyboardView = KeyboardView(orientationManager: orientationManager)
         let hostingController = UIHostingController(rootView: keyboardView)
         
         addChild(hostingController)
@@ -43,6 +44,10 @@ class KeyboardViewController: UIInputViewController {
         
         self.keyboardView = hostingController.view
         self.hostingController = hostingController
+
+        NotificationCenter.default.addObserver(forName: UIDevice.orientationDidChangeNotification, object: nil, queue: .main) { _ in
+            orientationManager.orientation = UIDevice.current.orientation
+        }
     }
     
     private func configureKeyboardConstraints(for view: UIView) {
@@ -78,6 +83,30 @@ class KeyboardViewController: UIInputViewController {
         notificationCenter.addObserver(self, selector: #selector(handleDeleteKey), name: KeyboardNotification.deleteKey, object: nil)
         notificationCenter.addObserver(self, selector: #selector(handleKeyboardChange), name: KeyboardNotification.keyboardChange, object: nil)
         notificationCenter.addObserver(self, selector: #selector(handleReturn), name: KeyboardNotification.returnKey, object: nil)
+        // Orientation change notification
+        notificationCenter.addObserver(self, selector: #selector(handleOrientationChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+    }
+
+    @objc private func handleOrientationChange() {
+        let orientation = UIDevice.current.orientation
+        adjustKeyboardLayout(for: orientation)
+    }
+
+    private func adjustKeyboardLayout(for orientation: UIDeviceOrientation) {
+        UIView.animate(withDuration: 0.3) {
+            if orientation.isLandscape {
+                print("Landscape mode detected")
+                self.hostingController?.view?.layoutMargins = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
+            } else if orientation.isPortrait {
+                print("Portrait mode detected")
+                self.hostingController?.view?.layoutMargins = UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
+            }
+        }
+        
+        print("Orientation: \(orientation)")
+        
+        // Notify your SwiftUI view if necessary
+        hostingController?.rootView.updateOrientation(orientation)
     }
     
     // MARK: - Keyboard Input Handlers

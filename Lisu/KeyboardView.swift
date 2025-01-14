@@ -9,8 +9,9 @@ import SwiftUI
 
 struct KeyboardView: View {
     @StateObject private var keyboardState = KeyboardState.shared
-    @State private var orientation = UIDevice.current.orientation
-    
+    @ObservedObject var orientationManager: OrientationManager
+    @State private var isLandscape: Bool = false
+
     var body: some View {
         VStack(spacing: 0) {
             let layout = keyboardState.getCurrentLayout()
@@ -33,16 +34,18 @@ struct KeyboardView: View {
                             }
                         }
                     }
-                } .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(KeyboardConstants.keyboardBackgroundColor)
-                    .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-                        orientation = UIDevice.current.orientation
-                        
-                        print("Orientation changed to: \(orientation)")
+                } 
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(KeyboardConstants.keyboardBackgroundColor)
+                .onChange(of: isLandscape) { oldValue, newValue in
+                    if oldValue != newValue {
+                        updateOrientation(UIDevice.current.orientation) 
                     }
+                    print("orientation changed to \(isLandscape ? "landscape" : "portrait")")
+                }
             }
-           
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .preferredColorScheme(ThemeSettings.shared.getCurrentColorScheme())
     }
     
@@ -71,6 +74,10 @@ struct KeyboardView: View {
         }
         
         return nil
+    }
+
+    func updateOrientation(_ orientation: UIDeviceOrientation) {
+        isLandscape = orientation.isLandscape
     }
 }
 
@@ -271,7 +278,7 @@ extension KeyboardView {
 
 struct KeyboardView_Previews: PreviewProvider {
     static var previews: some View {
-        KeyboardView()
+        KeyboardView(orientationManager: OrientationManager())
             .frame(height:
                 UIDevice.current.orientation.isLandscape ?
                 DeviceHelper.getKeyboardHeight() * 0.8 :

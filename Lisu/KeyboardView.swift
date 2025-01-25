@@ -13,44 +13,52 @@ struct KeyboardView: View {
     @State private var isLandscape: Bool = false
 
     var body: some View {
-        VStack(spacing: 0) {
+        GeometryReader { geometry in
             let layout = keyboardState.getCurrentLayout()
-            let keyboardWidth = UIScreen.main.bounds.width
-            let keyboardHeight = UIScreen.main.bounds.height
-            
+            let keyboardWidth = geometry.size.width
+            let keyboardHeight = geometry.size.height
             if keyboardWidth > 0 && keyboardHeight > 0 {
-                ZStack {
-                    KeyboardContentView(keyboardWidth: keyboardWidth, keyboardHeight: keyboardHeight,layout: layout, keyboardState: keyboardState)
-                    // Popover
-                    if let showingKey = keyboardState.showingPopover {
-                        if !isSpecialKey(showingKey) {
-                            GeometryReader { geometry in
-                                if let buttonFrame = getButtonFrame(for: showingKey, in: geometry, layout: layout, keyboardWidth: keyboardWidth) {
-                                    KeyPopoverView(key: showingKey, width: buttonFrame.width)
-                                        .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
-                                        .transition(.opacity)
-                                        .zIndex(1)
+                VStack(spacing: 0) {                    
+                    if keyboardWidth > 0 && keyboardHeight > 0 {
+                        ZStack {
+                            KeyboardContentView(keyboardWidth: keyboardWidth, keyboardHeight: keyboardHeight,layout: layout, keyboardState: keyboardState)
+                            // Popover
+                            if let showingKey = keyboardState.showingPopover {
+                                if !isSpecialKey(showingKey) {
+                                    GeometryReader { geometry in
+                                        if let buttonFrame = getButtonFrame(for: showingKey, in: geometry, layout: layout, keyboardWidth: keyboardWidth) {
+                                            KeyPopoverView(key: showingKey, width: buttonFrame.width)
+                                                .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
+                                                .transition(.opacity)
+                                                .zIndex(1)
+                                        }
+                                    }
                                 }
                             }
+                        } 
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(KeyboardConstants.keyboardBackgroundColor)
+                        .onChange(of: isLandscape) { oldValue, newValue in
+                            if oldValue != newValue {
+                                updateOrientation(UIDevice.current.orientation) 
+                            }
+                            print("orientation changed to \(isLandscape ? "landscape" : "portrait")")
                         }
                     }
-                } 
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(KeyboardConstants.keyboardBackgroundColor)
-                .onChange(of: isLandscape) { oldValue, newValue in
-                    if oldValue != newValue {
-                        updateOrientation(UIDevice.current.orientation) 
-                    }
-                    print("orientation changed to \(isLandscape ? "landscape" : "portrait")")
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .preferredColorScheme(ThemeSettings.shared.getCurrentColorScheme())
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .preferredColorScheme(ThemeSettings.shared.getCurrentColorScheme())
+        .background(KeyboardConstants.keyboardBackgroundColor)
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            updateOrientation(UIDevice.current.orientation)
+        }
     }
     
     private func isSpecialKey(_ key: String) -> Bool {
-        return ["shift", "unshift", "123", "Abc", "sym", "space", "backspace", "return", "keyboardchange"].contains(key)
+        return ["Shift", "Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Space", "Backspace", "Return", "Keyboardchange"].contains(key)
     }
     
     private func getButtonFrame(for key: String, in geometry: GeometryProxy, layout: KeyboardLayout, keyboardWidth: CGFloat) -> CGRect? {
@@ -151,30 +159,30 @@ struct KeyButton: View {
     
     private func handleKeyPress() {
         switch key {
-        case "shift", "unshift":
+        case "Shift", "Unshift":
             withAnimation(.spring(response: 0.2)) {
                 keyboardState.toggleShift()
             }
-        case "123":
+        case "?123":
             withAnimation(.spring(response: 0.2)) {
                 keyboardState.switchToNumbers()
             }
-        case "Abc":
+        case "ꓐꓑꓒ":
             withAnimation(.spring(response: 0.2)) {
                 keyboardState.switchToLetters()
             }
-        case "sym":
+        case "=\\<":
             withAnimation(.spring(response: 0.2)) {
                 keyboardState.switchToSymbols()
             }
-        case "space":
+        case "Space":
             NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: " ")
-        case "backspace":
+        case "Backspace":
             NotificationCenter.default.post(name: NSNotification.Name("deleteKey"), object: nil)
-        case "return":
+        case "Return":
             NotificationCenter.default.post(name: NSNotification.Name("return"), object: nil)
-        case "keyboardchange":
-            NotificationCenter.default.post(name: NSNotification.Name("keyboardchange"), object: nil)
+        case "KeyboardChange":
+            NotificationCenter.default.post(name: NSNotification.Name("KeyboardChange"), object: nil)
         default:
             let keyToSend = keyboardState.isShifted ? key.uppercased() : key
             NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: keyToSend)
@@ -188,11 +196,11 @@ struct KeyButton: View {
     }
     
     private var isSpecialKey: Bool {
-        ["shift", "unshift", "123", "Abc", "sym", "space", "backspace", "return", "keyboardchange"].contains(key)
+        ["Shift", "Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Space", "Backspace", "Return", "KeyboardChange"].contains(key)
     }
 
     private var isColorSpecialKey: Bool {
-        ["unshift", "123", "Abc", "sym", "backspace", "return", "keyboardchange"].contains(key)
+        ["Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Backspace", "Return", "KeyboardChange"].contains(key)
     }
     
     private var backgroundColor: Color {
@@ -205,16 +213,16 @@ struct KeyButton: View {
     private var keyContent: some View {
         Group {
             switch key {
-            case "shift", "unshift":
+            case "Shift", "Unshift":
                 Image(systemName: "shift.fill")
                     .font(.system(size: 20))
-            case "backspace":
+            case "Backspace":
                 Image(systemName: "delete.left.fill")
                     .font(.system(size: 20))
-            case "return":
+            case "Return":
                 Image(systemName: "return")
                     .font(.system(size: 20))
-            case "space":
+            case "Space":
                 ZStack {
                     if keyboardState.showKeyboardName {
                         Text("Lisu")
@@ -227,10 +235,10 @@ struct KeyButton: View {
                     }
                 }
                 .animation(.linear(duration: 0.5), value: keyboardState.showKeyboardName)
-            case "keyboardchange":
+            case "KeyboardChange":
                 Image(systemName: "globe")
                     .font(.system(size: 20))
-            case "123", "Abc", "sym":
+            case "?123", "ꓐꓑꓒ", "=\\<":
                 Text(key)
                     .font(.system(size: 16, weight: .medium))
             default:

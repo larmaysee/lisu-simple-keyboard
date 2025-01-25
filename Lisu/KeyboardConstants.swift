@@ -9,14 +9,14 @@ import SwiftUI
 
 enum KeyboardConstants {
     // Layout
-    static let rowSpacing: CGFloat = 8
+    static let rowSpacing: CGFloat = 10
     static let keySpacing: CGFloat = 6
     static let verticalPadding: CGFloat = 6
     static let rowVerticalPadding: CGFloat = 8
     static let maxKeysPerRow = 10
     static let numberOfRows = 4
     static let maxKeyHeight: CGFloat = 45
-    static let minKeyHeight: CGFloat = 35
+    static let minKeyHeight: CGFloat = 38
     
     // Colors
     static let specialKeyColor = Color(red: 171/255, green: 177/255, blue: 186/255)
@@ -28,7 +28,7 @@ enum KeyboardConstants {
         if isIPad {
             return isLandscape ? 250 : 340
         } else {
-            return isLandscape ? 180 : 230
+            return isLandscape ? 180 : 250
         }
     }
 }

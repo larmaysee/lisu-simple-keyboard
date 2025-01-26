@@ -55,10 +55,23 @@ struct KeyboardLayout {
 }
 
 enum KeyboardLayoutHelper {
-    static func getKeyWidth(for key: String, totalWidth: CGFloat, rowKeys: [String]) -> CGFloat {
+
+    static func getKeyWidth(for key: String, totalWidth: CGFloat, rowKeys: [String], rowIndex: Int = 0) -> CGFloat {
         let maxKeysInRow = 10 // Maximum number of keys in any row
-        let usableWidth = min(totalWidth * 0.98, 400) // Use 98% of width, max 400pts
-        let regularKeyWidth = (usableWidth - (CGFloat(maxKeysInRow - 1) * KeyboardConstants.keySpacing)) / CGFloat(maxKeysInRow)
+        let isLandscape = DeviceHelper.isLandscape()
+        
+        let widthPercentage: CGFloat = 0.99
+        let maxWidth: CGFloat = isLandscape ? 900 : 400
+        let usableWidth = min(totalWidth * widthPercentage, maxWidth)
+        
+        // Calculate regular key width
+        let regularKeyWidth: CGFloat
+        if isLandscape {
+            let landscapeMaxKeys: CGFloat = 10
+            regularKeyWidth = (usableWidth - (landscapeMaxKeys - 1) * KeyboardConstants.keySpacing) / landscapeMaxKeys
+        } else {
+            regularKeyWidth = (usableWidth - (CGFloat(maxKeysInRow - 1) * KeyboardConstants.keySpacing)) / CGFloat(maxKeysInRow)
+        }
         
         // Calculate space key width based on remaining space in row
         if key == "Space" {
@@ -66,7 +79,7 @@ enum KeyboardLayoutHelper {
                 if currentKey != "Space" {
                     switch currentKey {
                     case "Shift", "Unshift", "Backspace", "Return", "?123", "ꓐꓑꓒ", "=\\<":
-                        return result + regularKeyWidth * 1.5 + KeyboardConstants.keySpacing
+                        return result + regularKeyWidth * (isLandscape ? 1.2 : 1.5) + KeyboardConstants.keySpacing
                     case "KeyboardChange":
                         return result + regularKeyWidth
                     default:
@@ -77,21 +90,24 @@ enum KeyboardLayoutHelper {
             }
             let spacingWidth = CGFloat(rowKeys.count - 1) * KeyboardConstants.keySpacing
             let remainingWidth = usableWidth - otherKeysWidth - spacingWidth
-            return max(remainingWidth, regularKeyWidth * 2) // Minimum width of 2 regular keys
+            return max(remainingWidth, regularKeyWidth * (isLandscape ? 4 : 2))
         }
         
-        // Special key widths based on regular key width
+        // Special key widths based on regular key width, orientation, and row
         switch key {
         case "Shift", "Unshift":
-            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+            let multiplier: CGFloat = rowIndex == 2 ? (isLandscape ? 1.2 : 1.2) : (isLandscape ? 1.2 : 1.5)
+            return regularKeyWidth * multiplier + KeyboardConstants.keySpacing
         case "Backspace":
-            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+            let multiplier: CGFloat = rowIndex == 2 ? (isLandscape ? 1.2 : 1.2) : (isLandscape ? 1.2 : 1.5)
+            return regularKeyWidth * multiplier + KeyboardConstants.keySpacing
         case "Return":
-            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+            return regularKeyWidth * (isLandscape ? 1.2 : 1.5) + KeyboardConstants.keySpacing
         case "?123", "ꓐꓑꓒ", "=\\<":
-            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+            let multiplier: CGFloat = rowIndex == 2 ? (isLandscape ? 1.2 : 1.2) : (isLandscape ? 1.2 : 1.5)
+            return regularKeyWidth * multiplier + KeyboardConstants.keySpacing
         case "KeyboardChange":
-            return regularKeyWidth // Same as regular key
+            return regularKeyWidth
         default:
             return regularKeyWidth
         }

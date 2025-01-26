@@ -26,12 +26,12 @@ struct KeyboardView: View {
                             if let showingKey = keyboardState.showingPopover {
                                 if !isSpecialKey(showingKey) {
                                     GeometryReader { geometry in
-                                        if let buttonFrame = getButtonFrame(for: showingKey, in: geometry, layout: layout, keyboardWidth: keyboardWidth) {
-                                            KeyPopoverView(key: showingKey, width: buttonFrame.width)
-                                                .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
-                                                .transition(.opacity)
-                                                .zIndex(1)
-                                        }
+                                        let currentRow = layout.rows.first(where: { $0.contains(showingKey) }) ?? []
+                                        let rowIndex = layout.rows.firstIndex(where: { $0.contains(showingKey) }) ?? 0
+                                        let buttonFrame = getKeyRect(for: showingKey, in: currentRow, at: rowIndex, in: geometry)
+                                        KeyPopoverView(key: showingKey, width: buttonFrame.width)
+                                            .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
+                                            .transition(.opacity)
                                     }
                                 }
                             }
@@ -61,27 +61,32 @@ struct KeyboardView: View {
         return ["Shift", "Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Space", "Backspace", "Return", "Keyboardchange"].contains(key)
     }
     
-    private func getButtonFrame(for key: String, in geometry: GeometryProxy, layout: KeyboardLayout, keyboardWidth: CGFloat) -> CGRect? {
-        var currentX: CGFloat = KeyboardConstants.keySpacing
-        var currentY: CGFloat = KeyboardConstants.verticalPadding * (DeviceHelper.isLandscape() ? 0.3 : 0.5)
+    private func getKeyRect(for key: String, in row: [String], at rowIndex: Int, in geometry: GeometryProxy) -> CGRect {
+        let keyboardWidth = geometry.size.width
+        let keyboardHeight = geometry.size.height
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
         
-        for (_, row) in layout.rows.enumerated() {
-            currentX = KeyboardConstants.keySpacing
-            
-            for (_, buttonKey) in row.enumerated() {
-                let buttonWidth = KeyboardLayoutHelper.getKeyWidth(for: buttonKey, totalWidth: keyboardWidth, rowKeys: row)
-                
-                if buttonKey == key {
-                    return CGRect(x: currentX, y: currentY, width: buttonWidth, height: KeyboardLayoutHelper.getKeyHeight(totalHeight: geometry.size.height))
-                }
-                
-                currentX += buttonWidth + KeyboardConstants.keySpacing
+        // Calculate Y position based on row index
+        for i in 0..<keyboardState.getCurrentLayout().rows.count {
+            if i < rowIndex {
+                currentY += KeyboardLayoutHelper.getKeyHeight(totalHeight: keyboardHeight) + KeyboardConstants.keySpacing
             }
-            
-            currentY += KeyboardLayoutHelper.getKeyHeight(totalHeight: geometry.size.height) + KeyboardConstants.rowSpacing
         }
         
-        return nil
+        currentX = KeyboardConstants.keySpacing
+        
+        for (_, buttonKey) in row.enumerated() {
+            let buttonWidth = KeyboardLayoutHelper.getKeyWidth(for: buttonKey, totalWidth: keyboardWidth, rowKeys: row, rowIndex: rowIndex)
+            
+            if buttonKey == key {
+                return CGRect(x: currentX, y: currentY, width: buttonWidth, height: KeyboardLayoutHelper.getKeyHeight(totalHeight: geometry.size.height))
+            }
+            
+            currentX += buttonWidth + KeyboardConstants.keySpacing
+        }
+        
+        return .zero
     }
 
     func updateOrientation(_ orientation: UIDeviceOrientation) {
@@ -103,11 +108,20 @@ struct KeyboardContentView: View {
                     let rowWidth = calculateRowWidth(row: layout.rows[rowIndex])
                     Spacer(minLength: (keyboardWidth - rowWidth) / 2)
                     ForEach(layout.rows[rowIndex], id: \.self) { key in
+                        let keyWidth = KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: layout.rows[rowIndex], rowIndex: rowIndex);
+                        if rowIndex == 2 && willAddPrefixSpace(key: key) {
+                            Spacer().frame(width: (keyWidth * 0.25) - KeyboardConstants.keySpacing)
+                        }
+
                         KeyButton(
                             key: key,
-                            width: KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: layout.rows[rowIndex]),
+                            width: keyWidth,
                             height: KeyboardLayoutHelper.getKeyHeight(totalHeight: keyboardHeight)
                         )
+                        if rowIndex == 2 && willAddSuffixSpace(key: key) {
+                            Spacer().frame(width: (keyWidth * 0.25) - KeyboardConstants.keySpacing)
+                        }
+
                         if key != layout.rows[rowIndex].last {
                             Spacer().frame(width: KeyboardConstants.keySpacing)
                         }
@@ -120,11 +134,33 @@ struct KeyboardContentView: View {
     }
     
     private func calculateRowWidth(row: [String]) -> CGFloat {
+        let rowIndex = layout.rows.firstIndex(of: row) ?? 0
         let keysWidth = row.reduce(0) { result, key in
-            result + KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: row)
+            let keyWidth = KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: row, rowIndex: rowIndex)
+            
+            // Add extra spacing for special keys in row 2
+            var extraSpace: CGFloat = 0
+            if rowIndex == 2 {
+                if willAddPrefixSpace(key: key) {
+                    extraSpace += (keyWidth * 0.25) - KeyboardConstants.keySpacing
+                }
+                if willAddSuffixSpace(key: key) {
+                    extraSpace += (keyWidth * 0.25) - KeyboardConstants.keySpacing
+                }
+            }
+            
+            return result + keyWidth + extraSpace
         }
         let spacingWidth = CGFloat(row.count - 1) * KeyboardConstants.keySpacing
         return keysWidth + spacingWidth
+    }
+
+    private func willAddPrefixSpace(key: String) -> Bool {
+        return ["Backspace"].contains(key)
+    }
+
+    private func willAddSuffixSpace(key: String) -> Bool {
+        return["Shift", "Unshift", "?123","=\\<"].contains(key)
     }
 }
 

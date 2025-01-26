@@ -88,10 +88,9 @@ class KeyboardViewController: UIInputViewController {
     }
 
     @objc private func handleOrientationChange() {
-        let orientation = UIDevice.current.orientation
-        print("Orientation changed to: \(orientation)")
-        let orientationManager = OrientationManager()
-        orientationManager.orientation = orientation
+        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
+        hostingController?.view.setNeedsLayout()
+        hostingController?.view.layoutIfNeeded()
     }
 
     // MARK: - Keyboard Input Handlers

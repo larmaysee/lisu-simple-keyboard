@@ -65,7 +65,6 @@ struct KeyboardView: View {
                             }
                         } 
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(KeyboardConstants.keyboardBackgroundColor)
                         .onChange(of: isLandscape) { oldValue, newValue in
                             if oldValue != newValue {
                                 updateOrientation(UIDevice.current.orientation) 
@@ -79,7 +78,6 @@ struct KeyboardView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(KeyboardConstants.keyboardBackgroundColor)
         .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
             updateOrientation(UIDevice.current.orientation)
         }
@@ -158,7 +156,7 @@ struct KeyboardContentView: View {
                 }
             }
         }
-        .padding(.vertical, KeyboardConstants.verticalPadding * (DeviceHelper.isLandscape() ? 0.3 : 0.5))
+        .padding(.vertical, KeyboardConstants.verticalPadding)
     }
     
     private func calculateRowWidth(row: [String]) -> CGFloat {
@@ -198,21 +196,20 @@ struct KeyButton: View {
     let height: CGFloat
     @StateObject private var keyboardState = KeyboardState.shared
     @State private var isPressed: Bool = false
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         Button(action: handleKeyPress) {
             ZStack {
-                backgroundColor
-                    .clipShape(RoundedCorner(
-                        radius: KeyboardConstants.keyRadius,
-                        corners: isPressed && !isSpecialKey ? [.bottomLeft, .bottomRight] : .allCorners
-                    ))
-                    .shadow(color: Color.black.opacity(0.35), radius: 0.5, x: 0, y: 1)
+                RoundedRectangle(cornerRadius: KeyboardConstants.keyRadius)
+                    .fill(backgroundColor)
+                    .shadow(color: Color.black.opacity(0.35), radius: 0.5, x: 0, y: 1.5)
                 
                 keyContent
             }
+            .frame(width: width, height: height)
         }
-        .frame(width: width, height: height)
+        .buttonStyle(KeyButtonStyle())
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
@@ -263,7 +260,6 @@ struct KeyButton: View {
         default:
             let keyToSend = keyboardState.isShifted ? key.uppercased() : key
             NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: keyToSend)
-            // Reset shift state after key press
             if keyboardState.isShifted {
                 withAnimation(.spring(response: 0.2)) {
                     keyboardState.toggleShift()
@@ -275,18 +271,18 @@ struct KeyButton: View {
     private var isSpecialKey: Bool {
         ["Shift", "Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Space", "Backspace", "Return", "KeyboardChange"].contains(key)
     }
-
+    
     private var isColorSpecialKey: Bool {
         ["Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Backspace", "Return", "KeyboardChange"].contains(key)
     }
     
     private var backgroundColor: Color {
         if isColorSpecialKey {
-            return KeyboardConstants.specialKeyColor
+            return colorScheme == .dark ? KeyboardConstants.darkSpecialKeyColor : KeyboardConstants.lightSpecialKeyColor
         }
-        return KeyboardConstants.regularKeyColor
+        return colorScheme == .dark ? KeyboardConstants.darkRegularKeyColor : KeyboardConstants.lightRegularKeyColor
     }
-
+    
     private var keyContent: some View {
         Group {
             switch key {
@@ -327,7 +323,15 @@ struct KeyButton: View {
                     .fontWeight(.medium)
             }
         }
-        .foregroundColor(.black)
+        .foregroundColor(Color(UIColor.label))
+    }
+}
+
+struct KeyButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
@@ -339,15 +343,15 @@ struct KeyPopoverView: View {
         ZStack {
             // Background shape with arrow
             VStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color(UIColor.systemBackground))
+                RoundedRectangle(cornerRadius: KeyboardConstants.keyRadius)
+                    .fill(Color(UIColor.secondarySystemBackground))
                     .frame(width: width * 1.2, height: 35)
-                    .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                    .shadow(color: Color.primary.opacity(0.15), radius: 1, x: 0, y: 1)
                 
                 // Arrow
                 Image(systemName: "arrowtriangle.down.fill")
                     .font(.system(size: 8))
-                    .foregroundColor(Color(UIColor.systemBackground))
+                    .foregroundColor(Color(UIColor.secondarySystemBackground))
                     .offset(y: -2)
             }
             

@@ -23,9 +23,11 @@ enum KeyboardConstants {
     static let popoverRadius: CGFloat = 8
     
     // Colors
-    static let specialKeyColor = Color(red: 171/255, green: 177/255, blue: 186/255, opacity: 0.8)
-    static let regularKeyColor = Color(red: 255/255, green: 255/255, blue: 255/255, opacity: 0.9)
-    static let keyboardBackgroundColor = Color(red: 210/255, green: 212/255, blue: 217/255, opacity: 0.8)
+    static let darkSpecialKeyColor = Color(UIColor.systemGray4)
+    static let darkRegularKeyColor = Color(UIColor.systemGray2)
+    
+    static let lightSpecialKeyColor = Color(UIColor(red: 171/255, green: 177/255, blue: 186/255, alpha: 1)) // #abb1ba
+    static let lightRegularKeyColor = Color(UIColor.systemBackground)
     
     // Device specific heights
     static func getKeyboardHeight(isLandscape: Bool, isIPad: Bool) -> CGFloat {

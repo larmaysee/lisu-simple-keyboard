@@ -29,9 +29,37 @@ struct KeyboardView: View {
                                         let currentRow = layout.rows.first(where: { $0.contains(showingKey) }) ?? []
                                         let rowIndex = layout.rows.firstIndex(where: { $0.contains(showingKey) }) ?? 0
                                         let buttonFrame = getKeyRect(for: showingKey, in: currentRow, at: rowIndex, in: geometry)
+                                        
+                                        let popoverOffset: CGFloat = DeviceHelper.isLandscape() ? 0 : 30
+                                        
+                                        // Calculate horizontal offset for second and third rows
+                                        let horizontalOffset: CGFloat = {
+                                            let regularKeyWidth = KeyboardLayoutHelper.getKeyWidth(for: "A", totalWidth: geometry.size.width, rowKeys: layout.rows[0], rowIndex: 0)
+                                            
+                                            if rowIndex == 1 {
+                                                // Second row offset
+                                                let keyDiff = layout.rows[0].count - layout.rows[1].count
+                                                return (CGFloat(keyDiff) * regularKeyWidth) / 2.0
+                                            } else if rowIndex == 2 {
+                                                // Third row offset - account for extra spacing
+                                                if showingKey == "Backspace" {
+                                                    return 0 // No offset for backspace key
+                                                } else if showingKey == "Shift" || showingKey == "Unshift" {
+                                                    return 0 // No offset for shift key
+                                                } else {
+                                                    // For other keys in third row, add offset for the extra spacing
+                                                    return regularKeyWidth * 0.25
+                                                }
+                                            }
+                                            
+                                            return 0
+                                        }()
+                                        
                                         KeyPopoverView(key: showingKey, width: buttonFrame.width)
-                                            .position(x: buttonFrame.midX, y: max(buttonFrame.minY, 0))
+                                            .offset(x: horizontalOffset, y: popoverOffset)
+                                            .position(x: buttonFrame.midX, y: buttonFrame.minY + 5)
                                             .transition(.opacity)
+                                            .zIndex(2)
                                     }
                                 }
                             }
@@ -308,22 +336,28 @@ struct KeyPopoverView: View {
     let width: CGFloat
     
     var body: some View {
-        VStack(spacing: 0) {
-            Text(key)
-                .font(.system(size: 28, weight: .medium))
-                .foregroundColor(.black)
-                .frame(width: max(width * 1.4, 45), height: 45)
-                .background(
-                    RoundedRectangle(cornerRadius: KeyboardConstants.popoverRadius)
-                        .fill(Color.white)
-                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
-                )
+        ZStack {
+            // Background shape with arrow
+            VStack(spacing: 0) {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(UIColor.systemBackground))
+                    .frame(width: width * 1.2, height: 35)
+                    .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 2)
+                
+                // Arrow
+                Image(systemName: "arrowtriangle.down.fill")
+                    .font(.system(size: 8))
+                    .foregroundColor(Color(UIColor.systemBackground))
+                    .offset(y: -2)
+            }
             
-            Rectangle()
-                .fill(Color.white)
-                .frame(width: width * 0.6, height: 8)
-                .offset(y: -4)
+            // Key text
+            Text(key)
+                .font(FontHelper.customFont(size: 28))
+                .foregroundColor(Color(UIColor.label))
+                .offset(y: -2)
         }
+        .frame(width: width * 1.2, height: 42)
     }
 }
 

@@ -99,19 +99,32 @@ struct KeyboardContentView: View {
         VStack(spacing: KeyboardConstants.rowSpacing) {
             Spacer(minLength: 0)
             ForEach(layout.rows.indices, id: \.self) { rowIndex in
-                HStack(spacing: KeyboardConstants.keySpacing) {
+                HStack {
+                    let rowWidth = calculateRowWidth(row: layout.rows[rowIndex])
+                    Spacer(minLength: (keyboardWidth - rowWidth) / 2)
                     ForEach(layout.rows[rowIndex], id: \.self) { key in
                         KeyButton(
                             key: key,
                             width: KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: layout.rows[rowIndex]),
                             height: KeyboardLayoutHelper.getKeyHeight(totalHeight: keyboardHeight)
                         )
+                        if key != layout.rows[rowIndex].last {
+                            Spacer().frame(width: KeyboardConstants.keySpacing)
+                        }
                     }
+                    Spacer(minLength: (keyboardWidth - rowWidth) / 2)
                 }
-                .padding(.horizontal, KeyboardConstants.keySpacing)
             }
         }
         .padding(.vertical, KeyboardConstants.verticalPadding * (DeviceHelper.isLandscape() ? 0.3 : 0.5))
+    }
+    
+    private func calculateRowWidth(row: [String]) -> CGFloat {
+        let keysWidth = row.reduce(0) { result, key in
+            result + KeyboardLayoutHelper.getKeyWidth(for: key, totalWidth: keyboardWidth, rowKeys: row)
+        }
+        let spacingWidth = CGFloat(row.count - 1) * KeyboardConstants.keySpacing
+        return keysWidth + spacingWidth
     }
 }
 
@@ -182,7 +195,7 @@ struct KeyButton: View {
         case "Return":
             NotificationCenter.default.post(name: NSNotification.Name("return"), object: nil)
         case "KeyboardChange":
-            NotificationCenter.default.post(name: NSNotification.Name("KeyboardChange"), object: nil)
+            NotificationCenter.default.post(name: KeyboardNotification.keyboardChange, object: nil)
         default:
             let keyToSend = keyboardState.isShifted ? key.uppercased() : key
             NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: keyToSend)
@@ -246,7 +259,7 @@ struct KeyButton: View {
                     .fontWeight(.medium)
             default:
                 Text(key)
-                    .font(FontHelper.customFont(size: 20))
+                    .font(FontHelper.customFont(size: 22))
                     .fontWeight(.medium)
             }
         }

@@ -21,7 +21,7 @@ struct KeyboardLayout {
 
     static let shiftedLayout = KeyboardLayout(
         rows: [
-            ["ʼ", "ꓼ","ꓱ","ꓤ","ꓕ","ꓻ","ꓵ","ˍ","ꓒ"],
+            ["ʼ", "ꓼ","ꓱ","ꓤ","ꓕ","ꓻ","ꓵ","ꓹꓼ","ˍ","ꓒ"],
             ["ꓯ","ꓽ","ꓷ","ꓞ","ꓨ","ꓺ","ꓩ","ꓘ","ꓶ"],
             ["Unshift", "ꓹ","ꓸ","ꓛ","ꓥ","ꓭ","-","ꓸꓼ","Backspace"],
             ["?123","꓾","KeyboardChange", "Space", "꓿", "Return"]
@@ -31,7 +31,7 @@ struct KeyboardLayout {
     static let numberPadLayout = KeyboardLayout(
         rows: [
             ["1","2","3","4","5","6","7","8","9","0"],
-            ["@","'","#","$","_","&","-","+","(",")","/"],
+            ["@","#","$","_","&","-","+","(",")","/"],
             ["=\\<","*","\"","\'",":",";","!","?", "Backspace"],
             ["ꓐꓑꓒ",",", "Space", ".", "Return"]
         ]
@@ -56,44 +56,44 @@ struct KeyboardLayout {
 
 enum KeyboardLayoutHelper {
     static func getKeyWidth(for key: String, totalWidth: CGFloat, rowKeys: [String]) -> CGFloat {
-        // Calculate total spacing between keys
-        let totalSpacing = (CGFloat(rowKeys.count + 1) * KeyboardConstants.keySpacing)
+        let maxKeysInRow = 10 // Maximum number of keys in any row
+        let usableWidth = min(totalWidth * 0.98, 400) // Use 98% of width, max 400pts
+        let regularKeyWidth = (usableWidth - (CGFloat(maxKeysInRow - 1) * KeyboardConstants.keySpacing)) / CGFloat(maxKeysInRow)
         
-        // Available width after subtracting spacing
-        let availableWidth = totalWidth - totalSpacing
-        
-        // Calculate base unit considering the extra spacers in row 3
-        var totalUnits: CGFloat = 0
-        
-        for k in rowKeys {
-            switch k {
-            case "Space":
-                totalUnits += 5
-            case "Return", "Shift", "Unshift":
-                totalUnits += 1.5
-            case "Backspace":
-                totalUnits += 1.3
-            case "Keyboardchange", "123", "Abc", "Sym":
-                totalUnits += 1.2
-            default:
-                totalUnits += 1
+        // Calculate space key width based on remaining space in row
+        if key == "Space" {
+            let otherKeysWidth = rowKeys.reduce(0) { result, currentKey in
+                if currentKey != "Space" {
+                    switch currentKey {
+                    case "Shift", "Unshift", "Backspace", "Return", "?123", "ꓐꓑꓒ", "=\\<":
+                        return result + regularKeyWidth * 1.5 + KeyboardConstants.keySpacing
+                    case "KeyboardChange":
+                        return result + regularKeyWidth
+                    default:
+                        return result + regularKeyWidth
+                    }
+                }
+                return result
             }
+            let spacingWidth = CGFloat(rowKeys.count - 1) * KeyboardConstants.keySpacing
+            let remainingWidth = usableWidth - otherKeysWidth - spacingWidth
+            return max(remainingWidth, regularKeyWidth * 2) // Minimum width of 2 regular keys
         }
         
-        let baseUnit = availableWidth / totalUnits
-        
-        // Special key widths
+        // Special key widths based on regular key width
         switch key {
-        case "Space":
-            return baseUnit * 5
-        case "Return", "Shift", "Unshift":
-            return baseUnit * 1.5
+        case "Shift", "Unshift":
+            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
         case "Backspace":
-            return baseUnit * 1.3
-        case "Keyboardchange", "?123", "ꓐꓑꓒ", "=\\<":
-            return baseUnit * 1.2
+            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+        case "Return":
+            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+        case "?123", "ꓐꓑꓒ", "=\\<":
+            return regularKeyWidth * 1.5 + KeyboardConstants.keySpacing // Width of 1.5 regular keys
+        case "KeyboardChange":
+            return regularKeyWidth // Same as regular key
         default:
-            return baseUnit
+            return regularKeyWidth
         }
     }
     

@@ -315,11 +315,11 @@ struct KeyButton: View {
                     .font(.system(size: 20))
             case "?123", "ꓐꓑꓒ", "=\\<":
                 Text(key)
-                    .font(FontHelper.customFont(size: 16))
+                    .font(FontHelper.customFont(size: 18))
                     .fontWeight(.medium)
             default:
                 Text(key)
-                    .font(FontHelper.customFont(size: 22))
+                    .font(FontHelper.customFont(size: 25))
                     .fontWeight(.medium)
             }
         }

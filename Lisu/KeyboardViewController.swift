@@ -27,6 +27,14 @@ class KeyboardViewController: UIInputViewController {
         super.viewDidLoad()
         // Register custom fonts
         FontHelper.registerFonts()
+        
+        for family in UIFont.familyNames {
+            print("Family: \(family)")
+            for name in UIFont.fontNames(forFamilyName: family) {
+                print("Font: \(name)")
+            }
+        }
+        
         setupNotificationObservers()
         setupKeyboardView()
     }

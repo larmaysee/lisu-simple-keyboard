@@ -1,31 +1,23 @@
 import SwiftUI
+import CoreText
 import UIKit
 
 enum FontHelper {
     static func registerFonts() {
-        // First try to register from bundle
-        if let fontURL = Bundle.main.url(forResource: "LisuBosa-Regular", withExtension: "ttf", subdirectory: "Fonts") {
+        // Use the correct bundle for the keyboard extension
+        guard let bundle = Bundle(identifier: "co.codibyte.Lisu-Keyboard.Lisu") else {
+            print("Could not find extension bundle")
+            return
+        }
+
+        // First, try to register a specific font
+        if let fontURL = bundle.url(forResource: "Fonts/LisuBosa-Regular", withExtension: "ttf") {
             registerFont(at: fontURL)
         } else {
-            print("Could not find LisuBosa-Regular.ttf in bundle")
-            
-            // Try to register from Fonts directory as fallback
-            guard let fontsURL = Bundle.main.url(forResource: "Fonts", withExtension: nil) else {
-                print("Could not find Fonts directory")
-                return
-            }
-            
-            do {
-                let fontFiles = try FileManager.default.contentsOfDirectory(at: fontsURL, includingPropertiesForKeys: nil)
-                for fontFile in fontFiles {
-                    registerFont(at: fontFile)
-                }
-            } catch {
-                print("Error loading fonts directory: \(error)")
-            }
+            print("Could not find LisuBosa-Regular.ttf in directory")
         }
     }
-    
+
     private static func registerFont(at url: URL) {
         var error: Unmanaged<CFError>?
         guard CTFontManagerRegisterFontsForURL(url as CFURL, .process, &error) else {
@@ -38,9 +30,9 @@ enum FontHelper {
         }
         print("Successfully registered font: \(url.lastPathComponent)")
     }
-    
+
     static func customFont(size: CGFloat) -> Font {
-        // Check if font is available
+        // Check if the font is available
         if UIFont(name: "LisuBosa-Regular", size: size) != nil {
             return Font.custom("LisuBosa-Regular", size: size)
         } else {

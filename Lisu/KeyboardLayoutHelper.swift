@@ -12,7 +12,7 @@ struct KeyboardLayout {
     
     static let defaultLayout = KeyboardLayout(
         rows: [
-            ["'", "ꓪ","ꓰ","ꓣ","ꓔ","ꓬ","ꓴ","ꓲ","ꓳ","ꓑ"],
+            ["ʼ", "ꓪ","ꓰ","ꓣ","ꓔ","ꓬ","ꓴ","ꓲ","ꓳ","ꓑ"],
             ["ꓮ","ꓢ","ꓓ","ꓝ","ꓖ","ꓧ","ꓙ","ꓗ","ꓡ"],
             ["Shift", "ꓜ","ꓫ","ꓚ","ꓦ","ꓐ","ꓠ","ꓟ","Backspace"],
             ["?123","꓾","KeyboardChange", "Space", "꓿", "Return"]

@@ -25,6 +25,8 @@ class KeyboardViewController: UIInputViewController {
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        // Register custom fonts
+        FontHelper.registerFonts()
         setupNotificationObservers()
         setupKeyboardView()
     }

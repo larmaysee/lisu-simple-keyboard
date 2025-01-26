@@ -127,7 +127,7 @@ struct KeyButton: View {
             ZStack {
                 backgroundColor
                     .clipShape(RoundedCorner(
-                        radius: 5,
+                        radius: KeyboardConstants.keyRadius,
                         corners: isPressed && !isSpecialKey ? [.bottomLeft, .bottomRight] : .allCorners
                     ))
                     .shadow(color: Color.black.opacity(0.35), radius: 0.5, x: 0, y: 1)
@@ -226,11 +226,13 @@ struct KeyButton: View {
                 ZStack {
                     if keyboardState.showKeyboardName {
                         Text("Lisu")
-                            .font(.system(size: 18))
+                            .font(FontHelper.customFont(size: 18))
+                            .fontWeight(.medium)
                             .transition(.opacity.combined(with: .scale))
                     } else {
                         Text("space")
-                            .font(.system(size: 18))
+                            .font(FontHelper.customFont(size: 18))
+                            .fontWeight(.medium)
                             .transition(.opacity.combined(with: .scale))
                     }
                 }
@@ -240,10 +242,12 @@ struct KeyButton: View {
                     .font(.system(size: 20))
             case "?123", "ꓐꓑꓒ", "=\\<":
                 Text(key)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(FontHelper.customFont(size: 16))
+                    .fontWeight(.medium)
             default:
                 Text(key)
-                    .font(.system(size: 20))
+                    .font(FontHelper.customFont(size: 20))
+                    .fontWeight(.medium)
             }
         }
         .foregroundColor(.black)
@@ -261,7 +265,7 @@ struct KeyPopoverView: View {
                 .foregroundColor(.black)
                 .frame(width: max(width * 1.4, 45), height: 45)
                 .background(
-                    RoundedRectangle(cornerRadius: 8)
+                    RoundedRectangle(cornerRadius: KeyboardConstants.popoverRadius)
                         .fill(Color.white)
                         .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
                 )

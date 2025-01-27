@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 // MARK: - Keyboard Notification Names
 enum KeyboardNotification {
@@ -15,7 +16,7 @@ enum KeyboardNotification {
     static let returnKey = NSNotification.Name("return")
 }
 
-class KeyboardViewController: UIInputViewController {
+class KeyboardViewController: UIInputViewController, KeyboardViewDelegate {
     
     // MARK: - Properties
     private var heightConstraint: NSLayoutConstraint?
@@ -25,19 +26,14 @@ class KeyboardViewController: UIInputViewController {
     // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         // Register custom fonts
         FontHelper.registerFonts()
-        
-        for family in UIFont.familyNames {
-            print("Family: \(family)")
-            for name in UIFont.fontNames(forFamilyName: family) {
-                print("Font: \(name)")
-            }
-        }
-        
-        setupNotificationObservers()
+
+        // set up the keyboard
         setupKeyboardView()
     }
+
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
@@ -47,18 +43,28 @@ class KeyboardViewController: UIInputViewController {
     
         // Dynamically update the hostingController's frame to match inputView's size
         hostingController?.view.frame = inputView.bounds
+        
+        // Update the layout
         hostingController?.view.setNeedsLayout()
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        
+        // Call super method
         super.viewWillTransition(to: size, with: coordinator)
+        
+        // Handle orientation change
         hostingController?.view.setNeedsLayout()
     }
+
     
     // MARK: - Setup Methods
     private func setupKeyboardView() {
         let orientationManager = OrientationManager()
-        let keyboardView = KeyboardView(orientationManager: orientationManager)
+        let viewModel = KeyboardViewModel()
+            viewModel.delegate = self
+        
+        let keyboardView = KeyboardView(orientationManager: orientationManager, viewModel: viewModel)
         let hostingController = UIHostingController(rootView: keyboardView)
         
         hostingController.view.backgroundColor = .clear
@@ -82,54 +88,30 @@ class KeyboardViewController: UIInputViewController {
             keyboardView.topAnchor.constraint(equalTo: view.topAnchor)
         ])
     }
-
-    private func setupNotificationObservers() {
-        let notificationCenter = NotificationCenter.default
-        
-        // Keyboard input notifications
-        notificationCenter.addObserver(self, selector: #selector(handleKeyPress(_:)), name: KeyboardNotification.addKey, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(handleDelete), name: KeyboardNotification.deleteKey, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(handleReturn(_:)), name: KeyboardNotification.returnKey, object: nil)
-        notificationCenter.addObserver(self, selector: #selector(handleKeyboardChange), name: KeyboardNotification.keyboardChange, object: nil)
-        // Orientation change notification
-        notificationCenter.addObserver(self, selector: #selector(handleOrientationChange), name: UIDevice.orientationDidChangeNotification, object: nil)
+    
+    func didTapKey(_ key: String) {
+        textDocumentProxy.insertText(key)
+    }
+    
+    func didTapReturn() {
+        textDocumentProxy.insertText("\n")
     }
 
-    @objc private func handleOrientationChange() {
+    func didTapBackspace() {
+        textDocumentProxy.deleteBackward()
+    }
+    
+    func ditTapKeyboardChange() {
+       advanceToNextInputMode()
+   }
+
+    func handleOrientationChange() {
         heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
         hostingController?.view.setNeedsLayout()
         hostingController?.view.layoutIfNeeded()
     }
-
-    // MARK: - Keyboard Input Handlers
-    @objc private func handleKeyPress(_ notification: Notification) {
-        guard let text = notification.object as? String else { return }
-        textDocumentProxy.insertText(text)
-        SoundManager.shared.playKeyClick()
-    }
     
-    @objc private func handleDelete() {
-        textDocumentProxy.deleteBackward()
-        SoundManager.shared.playKeyClick()
-    }
-    
-    @objc private func handleReturn(_ notification: Notification) {
-        textDocumentProxy.insertText("\n")
-        SoundManager.shared.playKeyClick()
-    }
-    
-    @objc private func handleKeyboardChange() {
-        advanceToNextInputMode()
-        SoundManager.shared.playKeyClick()
-    }
-
     deinit {
-        let notificationCenter = NotificationCenter.default
-        notificationCenter.removeObserver(self, name: KeyboardNotification.addKey, object: nil)
-        notificationCenter.removeObserver(self, name: KeyboardNotification.deleteKey, object: nil)
-        notificationCenter.removeObserver(self, name: KeyboardNotification.returnKey, object: nil)
-        notificationCenter.removeObserver(self, name: KeyboardNotification.keyboardChange, object: nil)
-        notificationCenter.removeObserver(self, name: UIDevice.orientationDidChangeNotification, object: nil)
         heightConstraint?.isActive = false
         heightConstraint = nil
     }

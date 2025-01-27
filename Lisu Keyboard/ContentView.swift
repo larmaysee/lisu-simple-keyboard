@@ -32,12 +32,6 @@ struct ContentView: View {
                     }
                     .padding(.vertical)
                 }
-                
-                Section {
-                    NavigationLink(destination: SettingsView()) {
-                        Label("Settings", systemImage: "gear")
-                    }
-                }
             }
             .navigationTitle("Lisu Keyboard")
         }

@@ -1,19 +1,21 @@
 import SwiftUI
 
 class KeyboardViewModel: ObservableObject {
-    @Published var currentTheme: ThemeMode
+    weak var delegate: KeyboardViewDelegate?
+
+    func tapKey(_ key: String) {
+        delegate?.didTapKey(key)
+    }
+
+    func tapBackspace() {
+        delegate?.didTapBackspace()
+    }
     
-    init() {
-        self.currentTheme = ThemeSettings.shared.selectedTheme
-        
-        NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("ThemeChanged"),
-            object: nil,
-            queue: .main
-        ) { [weak self] notification in
-            if let newTheme = notification.object as? ThemeMode {
-                self?.currentTheme = newTheme
-            }
-        }
+    func tapReturn() {
+        delegate?.didTapReturn()
+    }
+    
+    func tapKeyboardChange() {
+        delegate?.ditTapKeyboardChange()
     }
 }

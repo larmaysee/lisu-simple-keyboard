@@ -57,7 +57,7 @@ struct KeyboardView: View {
                                         
                                         KeyPopoverView(key: showingKey, width: buttonFrame.width)
                                             .offset(x: horizontalOffset, y: popoverOffset)
-                                            .position(x: buttonFrame.midX, y: buttonFrame.minY + 5)
+                                            .position(x: buttonFrame.midX, y: buttonFrame.minY)
                                             .transition(.opacity)
                                             .zIndex(2)
                                     }
@@ -214,18 +214,14 @@ struct KeyButton: View {
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
                     if !isPressed && !isSpecialKey {
-                        withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
-                            isPressed = true
-                            keyboardState.setShowingPopover(for: key)
-                        }
+                        isPressed = true
+                        keyboardState.setShowingPopover(for: key)
                     }
                 }
                 .onEnded { _ in
                     if isPressed {
-                        withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
-                            isPressed = false
-                            keyboardState.setShowingPopover(for: nil)
-                        }
+                        isPressed = false
+                        keyboardState.setShowingPopover(for: nil)
                     }
                 }
         )
@@ -299,12 +295,12 @@ struct KeyButton: View {
                 ZStack {
                     if keyboardState.showKeyboardName {
                         Text("Lisu")
-                            .font(FontHelper.customFont(size: 18))
+                            .font(.system(size: 18))
                             .fontWeight(.medium)
                             .transition(.opacity.combined(with: .scale))
                     } else {
                         Text("space")
-                            .font(FontHelper.customFont(size: 18))
+                            .font(.system(size: 18))
                             .fontWeight(.medium)
                             .transition(.opacity.combined(with: .scale))
                     }
@@ -315,12 +311,15 @@ struct KeyButton: View {
                     .font(.system(size: 20))
             case "?123", "ꓐꓑꓒ", "=\\<":
                 Text(key)
-                    .font(FontHelper.customFont(size: 18))
+                    .font(.system(size: 18))
                     .fontWeight(.medium)
             default:
                 Text(key)
-                    .font(FontHelper.customFont(size: 25))
-                    .fontWeight(.medium)
+                    .font(
+                        !KeyboardState.shared.isSymbolPad && !KeyboardState.shared.isNumberPad ?
+                            FontHelper.customFont(size: 25) :
+                            Font.system(size: 20)
+                    )
             }
         }
         .foregroundColor(Color(UIColor.label))
@@ -361,7 +360,7 @@ struct KeyPopoverView: View {
                 .foregroundColor(Color(UIColor.label))
                 .offset(y: -2)
         }
-        .frame(width: width * 1.2, height: 42)
+        .frame(width: width * 1.2, height: 44)
     }
 }
 

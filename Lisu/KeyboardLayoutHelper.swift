@@ -46,6 +46,36 @@ struct KeyboardLayout {
         ]
     )
     
+    static let ipadKeyboardLayout = KeyboardLayout(
+        rows: [
+            ["`","1","2","3","4","5","6","7","8","9","0", "Backspace"],
+            ["Tab","ʼ", "ꓪ","ꓰ","ꓣ","ꓔ","ꓬ","ꓴ","ꓲ","ꓳ","ꓑ","[","]", "\\"],
+            ["English","ꓮ","ꓢ","ꓓ","ꓝ","ꓖ","ꓧ","ꓙ","ꓗ","ꓡ","ꓼ","'", "Return"],
+            ["Shift", "ꓜ","ꓫ","ꓚ","ꓦ","ꓐ","ꓠ","ꓟ","ꓹ","ꓸ","/","Shift"],
+            ["?123","꓾","KeyboardChange", "Space", "꓿", "Return"]
+        ]
+    )
+
+    static let ipadShiftedLayout = KeyboardLayout(
+        rows: [
+            ["~","!","@","#","$","%","^","&","*","(",")", "Backspace"],
+            ["Tab","ʼ", "ꓼ","ꓱ","ꓤ","ꓕ","ꓻ","ꓵ","ꓹꓼ","ˍ","ꓒ","{","}", "|"],
+            ["English","ꓯ","•","ꓷ","ꓞ","ꓨ","ꓺ","ꓩ","ꓘ","ꓶ","ꓽ","\"", "Return"],
+            ["Unshift","“"ꓹ"”"ꓹ"ꓛ","ꓥ","ꓭ","-","ꓸꓼ", "ꓹ","ꓸ","?","Unshift"],
+            ["?123","꓾","KeyboardChange", "Space", "꓿", "Return"]
+        ]
+    )
+
+    static let ipadNumberPadLayout = KeyboardLayout(
+        rows: [
+            ["`","1","2","3","4","5","6","7","8","9","0","<", ">", "Backspace"],
+            ["Tab","[","]","{","}","#","%","^","*","+","=", "\\","|", "~"],
+            ["Undo","-","/",":",";","(",")","$","&","@","£","¥", "Return"],
+            ["Redo","…",".",",","?","!","'","\"","_","€","Backspace"],
+            ["ꓐꓑꓒ","π","KeyboardChange", "Space", ".", "Return"]
+        ]
+    )
+
     static func getCurrentLayout(isShifted: Bool, isNumberPad: Bool, isSymbolPad: Bool) -> KeyboardLayout {        
         if isSymbolPad { return symbolPadLayout }
         if isNumberPad { return numberPadLayout }
@@ -126,7 +156,7 @@ enum KeyboardLayoutHelper {
         
         // Set minimum and maximum heights based on device and orientation
         let minHeight: CGFloat = isLandscape ? 32 : 38
-        let maxHeight: CGFloat = isLandscape ? 38 : 40
+        let maxHeight: CGFloat = isLandscape ? 38 : 42
         
         return max(min(baseHeight, maxHeight), minHeight)
     }

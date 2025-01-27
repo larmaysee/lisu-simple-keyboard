@@ -19,14 +19,14 @@ enum KeyboardConstants {
     static let minKeyHeight: CGFloat = 38
     
     // Radius
-    static let keyRadius: CGFloat = 5
+    static let keyRadius: CGFloat = 6
     static let popoverRadius: CGFloat = 8
     
     // Colors
     static let darkSpecialKeyColor = Color(UIColor.systemGray4)
     static let darkRegularKeyColor = Color(UIColor.systemGray2)
     
-    static let lightSpecialKeyColor = Color(UIColor(red: 171/255, green: 177/255, blue: 186/255, alpha: 1)) // #abb1ba
+    static let lightSpecialKeyColor = Color(UIColor(red: 171/255, green: 177/255, blue: 186/255, alpha: 0.5)) // #abb1ba
     static let lightRegularKeyColor = Color(UIColor.systemBackground)
     
     // Device specific heights

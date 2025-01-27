@@ -203,7 +203,7 @@ struct KeyButton: View {
             ZStack {
                 RoundedRectangle(cornerRadius: KeyboardConstants.keyRadius)
                     .fill(backgroundColor)
-                    .shadow(color: Color.black.opacity(0.35), radius: 0.5, x: 0, y: 1.5)
+                    .shadow(color: Color.black.opacity(0.2), radius: 0.5, x: 0, y: 1.5)
                 
                 keyContent
             }
@@ -230,21 +230,13 @@ struct KeyButton: View {
     private func handleKeyPress() {
         switch key {
         case "Shift", "Unshift":
-            withAnimation(.spring(response: 0.2)) {
-                keyboardState.toggleShift()
-            }
+            keyboardState.toggleShift()
         case "?123":
-            withAnimation(.spring(response: 0.2)) {
-                keyboardState.switchToNumbers()
-            }
+            keyboardState.switchToNumbers()
         case "ꓐꓑꓒ":
-            withAnimation(.spring(response: 0.2)) {
-                keyboardState.switchToLetters()
-            }
+            keyboardState.switchToLetters()
         case "=\\<":
-            withAnimation(.spring(response: 0.2)) {
-                keyboardState.switchToSymbols()
-            }
+            keyboardState.switchToSymbols()
         case "Space":
             NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: " ")
         case "Backspace":
@@ -254,12 +246,8 @@ struct KeyButton: View {
         case "KeyboardChange":
             NotificationCenter.default.post(name: KeyboardNotification.keyboardChange, object: nil)
         default:
-            let keyToSend = keyboardState.isShifted ? key.uppercased() : key
-            NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: keyToSend)
             if keyboardState.isShifted {
-                withAnimation(.spring(response: 0.2)) {
-                    keyboardState.toggleShift()
-                }
+                keyboardState.toggleShift()
             }
         }
     }
@@ -295,12 +283,12 @@ struct KeyButton: View {
                 ZStack {
                     if keyboardState.showKeyboardName {
                         Text("Lisu")
-                            .font(.system(size: 18))
+                            .font(.system(size: 16))
                             .fontWeight(.medium)
                             .transition(.opacity.combined(with: .scale))
                     } else {
                         Text("space")
-                            .font(.system(size: 18))
+                            .font(.system(size: 16))
                             .fontWeight(.medium)
                             .transition(.opacity.combined(with: .scale))
                     }
@@ -311,14 +299,14 @@ struct KeyButton: View {
                     .font(.system(size: 20))
             case "?123", "ꓐꓑꓒ", "=\\<":
                 Text(key)
-                    .font(.system(size: 18))
+                    .font(.system(size: 16))
                     .fontWeight(.medium)
             default:
                 Text(key)
                     .font(
                         !KeyboardState.shared.isSymbolPad && !KeyboardState.shared.isNumberPad ?
-                            FontHelper.customFont(size: 25) :
-                            Font.system(size: 20)
+                            FontHelper.customFont(size: 23) :
+                            Font.system(size: 18)
                     )
             }
         }

@@ -246,6 +246,8 @@ struct KeyButton: View {
         case "KeyboardChange":
             NotificationCenter.default.post(name: KeyboardNotification.keyboardChange, object: nil)
         default:
+            let keyToSend = keyboardState.isShifted ? key.uppercased() : key
+            NotificationCenter.default.post(name: NSNotification.Name("addKey"), object: keyToSend)
             if keyboardState.isShifted {
                 keyboardState.toggleShift()
             }

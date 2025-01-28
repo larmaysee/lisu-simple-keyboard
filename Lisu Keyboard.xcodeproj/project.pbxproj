@@ -502,7 +502,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Lisu Keyboard/Lisu Keyboard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"Lisu Keyboard/Preview Content\"";
 				DEVELOPMENT_TEAM = B88283P8VG;
 				ENABLE_PREVIEWS = YES;
@@ -534,7 +534,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Lisu Keyboard/Lisu Keyboard.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"Lisu Keyboard/Preview Content\"";
 				DEVELOPMENT_TEAM = B88283P8VG;
 				ENABLE_PREVIEWS = YES;
@@ -636,7 +636,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Lisu/Lisu.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = B88283P8VG;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lisu/Info.plist;
@@ -647,7 +647,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "co.codibyte.Lisu-Keyboard.Lisu";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -662,7 +662,7 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = Lisu/Lisu.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = B88283P8VG;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Lisu/Info.plist;
@@ -673,7 +673,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "co.codibyte.Lisu-Keyboard.Lisu";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

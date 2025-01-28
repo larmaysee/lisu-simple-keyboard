@@ -75,8 +75,12 @@ class KeyboardViewController: UIInputViewController, KeyboardViewDelegate {
         
         self.keyboardView = hostingController.view
         self.hostingController = hostingController
+        heightConstraint?.isActive = false
         heightConstraint = view.heightAnchor.constraint(equalToConstant: DeviceHelper.getKeyboardHeight())
+        heightConstraint?.priority = .defaultHigh
         heightConstraint?.isActive = true
+
+        hostingController.didMove(toParent: self)
     }
     
     private func configureKeyboardConstraints(for keyboardView: UIView) {

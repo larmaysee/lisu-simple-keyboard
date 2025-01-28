@@ -82,6 +82,16 @@ struct KeyboardLayout {
         if isShifted { return shiftedLayout }
         return defaultLayout
     }
+
+
+    static func getIpadLayout(
+        isShifted: Bool,
+        isNumberPad: Bool
+    ) -> KeyboardLayout {
+        if isNumberPad { return ipadNumberPadLayout }
+        if isShifted { return ipadShiftedLayout }
+        return ipadKeyboardLayout
+    }
 }
 
 enum KeyboardLayoutHelper {
@@ -91,7 +101,7 @@ enum KeyboardLayoutHelper {
         
         let widthPercentage: CGFloat = 1
         let maxWidth: CGFloat = isLandscape ? 900 : 400
-        let usableWidth = min(totalWidth * widthPercentage, maxWidth)
+        let usableWidth = totalWidth * widthPercentage
         
         // Calculate regular key width
         let regularKeyWidth: CGFloat
@@ -153,8 +163,8 @@ enum KeyboardLayoutHelper {
         let baseHeight = availableHeight / CGFloat(KeyboardConstants.numberOfRows)
         
         // Set minimum and maximum heights based on device and orientation
-        let minHeight: CGFloat = isLandscape ? 32 : 40
-        let maxHeight: CGFloat = isLandscape ? 38 : 42
+        let minHeight: CGFloat = DeviceHelper.isIPad() ? isLandscape ? 45 : 55 : isLandscape ? 32 : 40
+        let maxHeight: CGFloat = DeviceHelper.isIPad() ? isLandscape ? 60 : 65 : isLandscape ? 38 : 42
         
         return max(min(baseHeight, maxHeight), minHeight)
     }

@@ -32,6 +32,16 @@ class KeyboardState: ObservableObject {
             isSymbolPad: isSymbolPad
         )
     }
+
+    func getIpadLayout(
+        isShifted: Bool,
+        isNumberPad: Bool
+    ) -> KeyboardLayout {
+        return KeyboardLayout.getIpadLayout(
+            isShifted: isShifted,
+            isNumberPad: isNumberPad
+        )
+    }
     
     func toggleShift() {
         isShifted.toggle()

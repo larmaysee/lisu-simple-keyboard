@@ -137,17 +137,3 @@ extension KeyboardView {
         return UIDevice.current.orientation.isLandscape ? DeviceHelper.getKeyboardHeight() * 0.8 : DeviceHelper.getKeyboardHeight()
     }
 }
-
-struct KeyboardView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            KeyboardView(orientationManager: OrientationManager(), viewModel: KeyboardViewModel())
-                .previewLayout(.fixed(width: 375, height: 300))
-                .environment(\.colorScheme, .light)
-            
-            KeyboardView(orientationManager: OrientationManager(), viewModel: KeyboardViewModel())
-                .previewLayout(.fixed(width: 375, height: 300))
-                .environment(\.colorScheme, .dark)
-        }
-    }
-}

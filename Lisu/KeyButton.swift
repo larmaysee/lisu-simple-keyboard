@@ -6,11 +6,13 @@
 //
 import SwiftUI
 import UIKit
+import Combine
 
 struct KeyButton: View {
     @ObservedObject var viewModel: KeyboardViewModel
     @StateObject private var keyboardState = KeyboardState.shared
     @State private var isPressed: Bool = false
+    @State private var backspaceTimer: Timer?
     @Environment(\.colorScheme) var colorScheme
     let key: String
     let width: CGFloat
@@ -27,7 +29,6 @@ struct KeyButton: View {
                 keyContent
                     .frame(width: width, height: height)
                     .background(backgroundColor)
-                    .shadow(color: Color.black.opacity(0.2), radius: 0.5, x: 0, y: 1.5)
                     .cornerRadius(KeyboardConstants.keyRadius)
                     .offset(x: getContentOffset())
             }
@@ -42,18 +43,40 @@ struct KeyButton: View {
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
-                    if !isPressed && !isSpecialKey {
-                        isPressed = true    
-                        keyboardState.setShowingPopover(for: key)
+                    if !isPressed {
+                        isPressed = true
+                        if key == "Backspace" {
+                            startBackspaceTimer()
+                        } else if !isSpecialKey {
+                            keyboardState.setShowingPopover(for: key)
+                        }
                     }
                 }
                 .onEnded { _ in
                     if isPressed {
                         isPressed = false
-                        keyboardState.setShowingPopover(for: nil)
+                        stopBackspaceTimer()
+                        if !isSpecialKey {
+                            keyboardState.setShowingPopover(for: nil)
+                        }
                     }
                 }
         )
+        .onDisappear {
+            stopBackspaceTimer()
+        }
+    }
+    
+    private func startBackspaceTimer() {
+        backspaceTimer?.invalidate()
+        backspaceTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            viewModel.tapBackspace()
+        }
+    }
+    
+    private func stopBackspaceTimer() {
+        backspaceTimer?.invalidate()
+        backspaceTimer = nil
     }
     
     private func action() {
@@ -145,7 +168,7 @@ struct KeyButton: View {
                 Text(key)
                     .font(
                         !KeyboardState.shared.isSymbolPad && !KeyboardState.shared.isNumberPad ?
-                            FontHelper.customFont(size: 23) :
+                            FontHelper.customFont(size: 25) :
                             Font.system(size: 18)
                     )
             }
@@ -168,7 +191,6 @@ struct KeyButton: View {
 struct KeyButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }

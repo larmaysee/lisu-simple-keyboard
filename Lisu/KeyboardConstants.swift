@@ -9,10 +9,10 @@ import SwiftUI
 
 enum KeyboardConstants {
     // Layout
-    static let rowSpacing: CGFloat = 10
-    static let keySpacing: CGFloat = 8
+    static let rowSpacing: CGFloat = 0
+    static let keySpacing: CGFloat = 6
     static let verticalPadding: CGFloat = 8
-    static let rowVerticalPadding: CGFloat = 10
+    static let rowVerticalPadding: CGFloat = 0
     static let maxKeysPerRow = 10
     static let numberOfRows = 5
     static let maxKeyHeight: CGFloat = 45

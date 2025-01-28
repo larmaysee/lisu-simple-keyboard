@@ -164,8 +164,9 @@ enum KeyboardLayoutHelper {
     }
 
     static func getKeyAreaHeight(totalHeight: CGFloat) -> CGFloat {
+        let isLandscape = DeviceHelper.isLandscape()
         return totalHeight / CGFloat(
-            isLandscape() ?
-            4 : 5)
+            isLandscape ?
+            4.5 : 4.6)
     }
 }

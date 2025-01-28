@@ -32,10 +32,11 @@ struct KeyButton: View {
                     .offset(x: getContentOffset())
             }
             .frame(width: areaWidth, height: areaHeight)
+            .shadow(color: Color.black.opacity(0.2), radius: 0.5, x: 0, y: 1.5)
         }
         .buttonStyle(KeyButtonStyle())
         .background(
-            Color(.red).opacity(1)
+            Color(UIColor.systemBackground).opacity(0.01)
         )
         .blur(radius: 0.1)
         .simultaneousGesture(
@@ -67,10 +68,19 @@ struct KeyButton: View {
             keyboardState.switchToSymbols()
         case "Space":
             viewModel.tapKey(" ")
+            if keyboardState.isShifted {
+                keyboardState.toggleShift()
+            }
         case "Backspace":
             viewModel.tapBackspace()
+            if keyboardState.isShifted {
+                keyboardState.toggleShift()
+            }
         case "Return":
             viewModel.tapReturn()
+            if keyboardState.isShifted {
+                keyboardState.toggleShift()
+            }
         case "KeyboardChange":
             viewModel.tapKeyboardChange()
         default:

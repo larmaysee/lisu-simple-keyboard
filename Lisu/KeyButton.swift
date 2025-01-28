@@ -5,6 +5,7 @@
 //  Created by Lar May See on 27/01/2025.
 //
 import SwiftUI
+import UIKit
 
 struct KeyButton: View {
     @ObservedObject var viewModel: KeyboardViewModel
@@ -14,25 +15,34 @@ struct KeyButton: View {
     let key: String
     let width: CGFloat
     let height: CGFloat
-    
+    let areaWidth: CGFloat
+    let areaHeight: CGFloat
+    let rowIndex: Int
+    let rowKeys: [String]
+    let layout: KeyboardLayout
     
     var body: some View {
         Button(action: action) {
-            ZStack {
-                RoundedRectangle(cornerRadius: KeyboardConstants.keyRadius)
-                    .fill(backgroundColor)
-                    .shadow(color: Color.black.opacity(0.2), radius: 0.5, x: 0, y: 1.5)
-                
+            ZStack {               
                 keyContent
+                    .frame(width: width, height: height)
+                    .background(backgroundColor)
+                    .shadow(color: Color.black.opacity(0.2), radius: 0.5, x: 0, y: 1.5)
+                    .cornerRadius(KeyboardConstants.keyRadius)
+                    .offset(x: getContentOffset())
             }
-            .frame(width: width, height: height)
+            .frame(width: areaWidth, height: areaHeight)
         }
         .buttonStyle(KeyButtonStyle())
+        .background(
+            Color(.red).opacity(1)
+        )
+        .blur(radius: 0.1)
         .simultaneousGesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { _ in
                     if !isPressed && !isSpecialKey {
-                        isPressed = true
+                        isPressed = true    
                         keyboardState.setShowingPopover(for: key)
                     }
                 }
@@ -132,8 +142,18 @@ struct KeyButton: View {
         }
         .foregroundColor(Color(UIColor.label))
     }
+    
+    private func getContentOffset() -> CGFloat {
+        if rowIndex == 1 && !KeyboardState.shared.isSymbolPad && !KeyboardState.shared.isNumberPad {
+            if rowKeys.first == key {
+                return (KeyboardConstants.keySpacing * 2) / 2
+            } else if rowKeys.last == key { 
+                return -(KeyboardConstants.keySpacing * 2) / 2
+            }
+        }
+        return 0
+    }
 }
-
 
 struct KeyButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {

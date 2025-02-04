@@ -8,132 +8,65 @@
 import SwiftUI
 
 struct KeyboardView: View {
-    @StateObject private var keyboardState = KeyboardState.shared
-    @ObservedObject var orientationManager: OrientationManager
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+    @Environment(\.colorScheme) private var colorScheme
     @ObservedObject var viewModel: KeyboardViewModel
-    @State private var isLandscape: Bool = false
+    let onHeightChanged: (CGFloat) -> Void
+    
+    private var isIPad: Bool { DeviceHelper.isIPad }
+    private var isLandscape: Bool { DeviceHelper.isLandscape }
     
     var body: some View {
         GeometryReader { geometry in
-            let layout = keyboardState.getCurrentLayout()
-            let keyboardWidth = geometry.size.width
-            let keyboardHeight = geometry.size.height
-            
-            if keyboardWidth > 0 && keyboardHeight > 0 {
-                VStack(spacing: 0) {
-                    ZStack {
-                        KeyboardContentView(
-                            keyboardWidth: keyboardWidth,
-                            keyboardHeight: keyboardHeight,
-                            layout: layout,
-                            keyboardState: keyboardState,
-                            viewModel: viewModel
-                        )
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .onChange(of: isLandscape) { oldValue, newValue in
-                    if oldValue != newValue {
-                        updateOrientation(UIDevice.current.orientation)
-                    }
+            Spacer(minLength: 0)
+            VStack(
+                spacing: 0
+            ) {
+                Spacer()
+                ForEach(currentLayout.rows.indices, id: \.self) { index in
+                    KeyboardRow(
+                        keys: currentLayout.rows[index],
+                        viewModel: viewModel,
+                        isIPad: DeviceHelper.isIPad,
+                        rowIndex: index
+                    )
                 }
             }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            updateOrientation(UIDevice.current.orientation)
-        }
-    }
-    
-    private func isSpecialKey(_ key: String) -> Bool {
-        return ["Shift", "Unshift", "?123", "ꓐꓑꓒ", "=\\<", "Space", "Backspace", "Return", "Keyboardchange"].contains(key)
-    }
-    
-    private func calculateHorizontalOffset(rowIndex: Int, showingKey: String, layout: KeyboardLayout, geometry: GeometryProxy) -> CGFloat {
-        let regularKeyWidth = KeyboardLayoutHelper.getKeyWidth(
-            for: "A",
-            totalWidth: geometry.size.width,
-            rowKeys: layout.rows[0],
-            rowIndex: 0
-        )
-        
-        switch rowIndex {
-        case 1:
-            let keyDiff = layout.rows[0].count - layout.rows[1].count
-            return (CGFloat(keyDiff) * regularKeyWidth) / 2.0
-        case 2:
-            if showingKey == "Backspace" || showingKey == "Shift" || showingKey == "Unshift" {
-                return 0
-            } else {
-                return regularKeyWidth * 0.25
-            }
-        default:
-            return 0
-        }
-    }
-    
-    private func getKeyRect(for key: String, in row: [String], at rowIndex: Int, in geometry: GeometryProxy) -> CGRect {
-        let keyboardWidth = geometry.size.width
-        let keyboardHeight = geometry.size.height
-        var currentX: CGFloat = 0
-        var currentY: CGFloat = 0
-        
-        // Calculate Y position based on row index
-        for i in 0..<keyboardState.getCurrentLayout().rows.count {
-            if i < rowIndex {
-                currentY += KeyboardLayoutHelper.getKeyHeight(totalHeight: keyboardHeight) + KeyboardConstants.keySpacing
-            }
-        }
-        
-        currentX = KeyboardConstants.keySpacing
-        
-        for buttonKey in row {
-            let buttonWidth = KeyboardLayoutHelper.getKeyWidth(
-                for: buttonKey,
-                totalWidth: keyboardWidth,
-                rowKeys: row,
-                rowIndex: rowIndex
-            )
-            
-            if buttonKey == key {
-                return CGRect(
-                    x: currentX,
-                    y: currentY,
-                    width: buttonWidth,
-                    height: KeyboardLayoutHelper.getKeyHeight(totalHeight: geometry.size.height)
+            .modifier(KeyboardHeightReader())
+            .frame(height: calculateKeyboardHeight(geometry: geometry))
+            .preference(
+                key: KeyboardHeightPreferenceKey.self,
+                value: geometry.size.height
+            ).onPreferenceChange(KeyboardHeightPreferenceKey.self) { height in
+                let kbHeight = calculateKeyboardHeight(geometry: geometry)
+                onHeightChanged(
+                    kbHeight
                 )
             }
-            
-            currentX += buttonWidth + KeyboardConstants.keySpacing
         }
-        
-        return .zero
     }
     
-    private func updateOrientation(_ orientation: UIDeviceOrientation) {
-        isLandscape = orientation.isLandscape
+    private func calculateKeyboardHeight(geometry: GeometryProxy) -> CGFloat {
+        let baseHeight = DeviceHelper.isIPad ? geometry.size.height * 0.3 : geometry.size.height * 0.4
+        let height = DeviceHelper.isLandscape ?
+            baseHeight * KeyboardConstants.heightRatioLandscape :
+            baseHeight * KeyboardConstants.heightRatioPortrait
+        let maxHeight = DeviceHelper.isIPad ? KeyboardConstants.iPadMaxHeight : KeyboardConstants.iOSMaxHeight
+        let minHeight = DeviceHelper.isIPad ? KeyboardConstants.iPadMinHeight : KeyboardConstants.iOSMinHeight
+        return min(max(height, minHeight), maxHeight)
     }
-}
-
-extension View {
-    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
-        clipShape(RoundedCorner(radius: radius, corners: corners))
+    
+    private var currentLayout: KeyboardLayout {
+        KeyboardLayoutConfig.getLayout(
+            for: viewModel.keyboardState,
+            device: isIPad ? .ipad : .iphone
+        )
     }
-}
-
-struct RoundedCorner: Shape {
-    var radius: CGFloat = .infinity
-    var corners: UIRectCorner = .allCorners
-
-    func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-        return Path(path.cgPath)
-    }
-}
-
-extension KeyboardView {
-    var intrinsicHeight: CGFloat {
-        return UIDevice.current.orientation.isLandscape ? DeviceHelper.getKeyboardHeight() * 0.8 : DeviceHelper.getKeyboardHeight()
+    
+    private var background: some View {
+        colorScheme == .dark ?
+        KeyboardConstants.darkKeyboardBackground :
+        KeyboardConstants.lightKeyboardBackground
     }
 }

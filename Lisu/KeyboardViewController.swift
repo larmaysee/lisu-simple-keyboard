@@ -8,129 +8,156 @@
 import SwiftUI
 import UIKit
 
-// MARK: - Keyboard Notification Names
-enum KeyboardNotification {
-    static let addKey = NSNotification.Name("addKey")
-    static let deleteKey = NSNotification.Name("deleteKey")
-    static let keyboardChange = NSNotification.Name("keyboardchange")
-    static let returnKey = NSNotification.Name("return")
+extension Notification.Name {
+    static let keyboardHeightDidChange = Notification.Name("keyboardHeightDidChange")
 }
 
-class KeyboardViewController: UIInputViewController, KeyboardViewDelegate {
+class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
     
-    // MARK: - Properties
     private var heightConstraint: NSLayoutConstraint?
-    private var keyboardView: UIView?
     private var hostingController: UIHostingController<KeyboardView>?
+    private var keyboardView: UIView?
+    private var keyboardViewModel = KeyboardViewModel()
     
-    // MARK: - Lifecycle Methods
+    private var heightObserver: NSObjectProtocol?
+
+    deinit {
+        if let observer = heightObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        // Register custom fonts
-        FontHelper.registerFonts()
-
-        // set up the keyboard
+        keyboardViewModel.delegate = self
         setupKeyboardView()
+        setupHeightObservation()
+    }
+    
+    private func setupHeightObservation() {
+        if let observer = heightObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
+        
+        heightObserver = NotificationCenter.default.addObserver(
+            forName: .keyboardHeightDidChange,
+            object: nil,
+            queue: .main
+        ) { notification in
+            print("Received height notification")
+            guard let height = notification.userInfo?["height"] as? CGFloat else {
+                print("Invalid height value")
+                return
+            }
+            
+            print("height -- \(height)")
+            
+            self.updateHeightConstraint(height)
+        }
+    }
+    
+    private func updateHeightConstraint(_ height: CGFloat) {
+        heightConstraint?.constant = height
+        view.setNeedsLayout()
+        UIView.animate(withDuration: 0.25) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-         heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
-
-        guard let inputView = self.inputView else { return }
-    
-        // Dynamically update the hostingController's frame to match inputView's size
-        hostingController?.view.frame = inputView.bounds
-        
-        // Update the layout
-        hostingController?.view.setNeedsLayout()
-    }
-
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        
-        // Call super method
-        super.viewWillTransition(to: size, with: coordinator)
-        
-        // Handle orientation change
-        hostingController?.view.setNeedsLayout()
-    }
-
-    
-    // MARK: - Setup Methods
     private func setupKeyboardView() {
-        let orientationManager = OrientationManager()
-        let viewModel = KeyboardViewModel()
-            viewModel.delegate = self
+        let keyboardView = KeyboardView(
+            viewModel: keyboardViewModel,
+            onHeightChanged: { height in
+                print("notification height change \(height)")
+                
+                NotificationCenter.default.post(
+                    name: .keyboardHeightDidChange,
+                    object: nil,
+                    userInfo: ["height": height]
+                )
+            }
+        )
         
-        let keyboardView = KeyboardView(orientationManager: orientationManager, viewModel: viewModel)
         let hostingController = UIHostingController(rootView: keyboardView)
-        
         hostingController.view.backgroundColor = .clear
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(hostingController.view)
-
         configureKeyboardConstraints(for: hostingController.view)
         
         self.keyboardView = hostingController.view
         self.hostingController = hostingController
-        heightConstraint?.isActive = false
-        heightConstraint = view.heightAnchor.constraint(equalToConstant: DeviceHelper.getKeyboardHeight())
-        heightConstraint?.priority = .defaultHigh
-        heightConstraint?.isActive = true
-
         hostingController.didMove(toParent: self)
+        
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+        print("Initial layout height: \(hostingController.view.frame.height)")
     }
     
     private func configureKeyboardConstraints(for keyboardView: UIView) {
-        keyboardView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             keyboardView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             keyboardView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             keyboardView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             keyboardView.topAnchor.constraint(equalTo: view.topAnchor)
         ])
+        
+        // Initial height constraint (will be updated by notifications)
+        heightConstraint = keyboardView.heightAnchor.constraint(equalToConstant: 0)
+        heightConstraint?.priority = .defaultHigh
+        heightConstraint?.isActive = true
     }
     
-    func didTapKey(_ key: String) {
-        textDocumentProxy.insertText(key)
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        hostingController?.view.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: view.bounds.width,
+            height: heightConstraint?.constant ?? 0
+        )
+        
+        print("Keyboard frame: \(view.frame)")
     }
     
-    func didTapReturn() {
-        textDocumentProxy.insertText("\n")
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate { _ in
+            self.hostingController?.view.setNeedsLayout()
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
     }
 
-    func didTapBackspace() {
+    
+    func insertText(_ text: String) {
+        textDocumentProxy.insertText(text)
+    }
+        
+    func deleteBackward() {
         textDocumentProxy.deleteBackward()
     }
     
-    func ditTapKeyboardChange() {
-       advanceToNextInputMode()
-   }
-
-    func handleOrientationChange() {
-        heightConstraint?.constant = DeviceHelper.getKeyboardHeight()
-        hostingController?.view.setNeedsLayout()
-        hostingController?.view.layoutIfNeeded()
+    func handleTab() {
+        insertText("\t")
     }
     
-    deinit {
-        heightConstraint?.isActive = false
-        heightConstraint = nil
+    func handleUndo() {
+//        textDocumentProxy.undo()
     }
-}
-
-
-extension UIView {
-    func addKeyboardSubview(_ subview: UIView) {
-        subview.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(subview)
-        NSLayoutConstraint.activate([
-            subview.leftAnchor.constraint(equalTo: leftAnchor),
-            subview.rightAnchor.constraint(equalTo: rightAnchor),
-            subview.topAnchor.constraint(equalTo: topAnchor),
-            subview.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+    
+    func handleRedo() {
+//        textDocumentProxy.redo()
+    }
+    
+    func handleReturn() {
+        insertText("\n")
+    }
+    
+    func handleKeyboardChange () {
+        self.advanceToNextInputMode()
     }
 }

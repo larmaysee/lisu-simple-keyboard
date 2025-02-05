@@ -33,13 +33,16 @@ struct KeyboardView: View {
                     )
                 }
             }
-            .modifier(KeyboardHeightReader())
             .frame(height: calculateKeyboardHeight(geometry: geometry))
+            .modifier(KeyboardHeightReader())
             .preference(
                 key: KeyboardHeightPreferenceKey.self,
                 value: geometry.size.height
             ).onPreferenceChange(KeyboardHeightPreferenceKey.self) { height in
+                print("on preference height: \(height)")
+                
                 let kbHeight = calculateKeyboardHeight(geometry: geometry)
+                print("kbHeight: \(kbHeight)")
                 onHeightChanged(
                     kbHeight
                 )
@@ -52,9 +55,10 @@ struct KeyboardView: View {
         let height = DeviceHelper.isLandscape ?
             baseHeight * KeyboardConstants.heightRatioLandscape :
             baseHeight * KeyboardConstants.heightRatioPortrait
-        let maxHeight = DeviceHelper.isIPad ? KeyboardConstants.iPadMaxHeight : KeyboardConstants.iOSMaxHeight
-        let minHeight = DeviceHelper.isIPad ? KeyboardConstants.iPadMinHeight : KeyboardConstants.iOSMinHeight
-        return min(max(height, minHeight), maxHeight)
+        let maxHeight = getMaxKeyboardHeight()
+        let minHeight = getMinKeyboardHeight()
+        let newHeight  = min(max(height, minHeight), maxHeight)
+        return newHeight
     }
     
     private var currentLayout: KeyboardLayout {
@@ -68,5 +72,15 @@ struct KeyboardView: View {
         colorScheme == .dark ?
         KeyboardConstants.darkKeyboardBackground :
         KeyboardConstants.lightKeyboardBackground
+    }
+    
+    private func getMaxKeyboardHeight() -> CGFloat {
+        isIPad ? (isLandscape ? KeyboardConstants.iPadLandscapeMaxHeight : KeyboardConstants.iPadMaxHeight) :
+            (isLandscape ? KeyboardConstants.iOSLandscapeMaxHeight : KeyboardConstants.iOSMaxHeight)
+    }
+    
+    private func getMinKeyboardHeight() -> CGFloat {
+        isIPad ? (isLandscape ? KeyboardConstants.iPadLandscapeMinHeight : KeyboardConstants.iPadMinHeight) :
+        (isLandscape ? KeyboardConstants.iOSLandscapeMinHeight : KeyboardConstants.iOSMinHeight)
     }
 }

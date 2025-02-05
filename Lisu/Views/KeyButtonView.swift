@@ -18,12 +18,10 @@ struct KeyButton: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        GeometryReader { geometry in
+        GeometryReader { _ in
             Button(action: {}) {
                 keyContent
-                    .padding(
-                        DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding * 2 : KeyboardConstants.keyContentPadding / 2
-                    )
+                    .padding(DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding * 2 : KeyboardConstants.keyContentPadding / 2)
                     .font(configuration.font)
                     .frame(maxWidth: .infinity, minHeight: configuration.minHeight, alignment: configuration.alignment)
                     .background(backgroundColor)
@@ -34,30 +32,21 @@ struct KeyButton: View {
                             .stroke(borderColor, lineWidth: configuration.borderWidth)
                     )
                     .padding(.horizontal, DeviceHelper.isIPad ? KeyboardConstants.iPadHorizontalPadding : KeyboardConstants.iOSHorizontalPadding)
-//                    .modifier(TapModifier(
-//                        singleTapAction: action,
-//                        doubleTapAction: doubleTapAction,
-//                        isShiftKey: key == SpecialKeys.shift || key == SpecialKeys.shift2
-//                    ))
             }
             .buttonStyle(KeyButtonStyle(isPressed: isPressed))
             .frame(
                 maxWidth: .infinity,
-                minHeight: DeviceHelper.isIPad ?  KeyboardConstants.iPadKeyButtonHeight : KeyboardConstants.iOSKeyButtonHeight,
-                maxHeight: DeviceHelper.isIPad ?  KeyboardConstants.iPadKeyButtonHeight : KeyboardConstants.iOSKeyButtonHeight
+                minHeight: getKeyButtonHeight(),
+                maxHeight: getKeyButtonHeight()
             )
             .contentShape(Rectangle())
             .background(.gray.opacity(0.01))
-            .modifier(TapGestureModifier(
-                onTap: {
-                    action()
-                }
-            ))
+            .modifier(TapGestureModifier(onTap: action))
         }
         .frame(maxWidth: .infinity)
     }
     
-    /// Returns the appropriate icon or text for the key
+    /// Determines the content for the key (icon or text).
     @ViewBuilder
     private var keyContent: some View {
         if let systemImage = systemImageForKey(key) {
@@ -67,40 +56,50 @@ struct KeyButton: View {
         }
     }
     
-    /// Returns the system icon name for special keys
+    // MARK: - Key Height Calculation
+    private func getKeyButtonHeight() -> CGFloat {
+        DeviceHelper.isIPad ?
+            DeviceHelper.isLandscape ?
+        KeyboardConstants.iPadKeyButtonHeightLandscape: KeyboardConstants.iPadKeyButtonHeight
+        : DeviceHelper.isLandscape ?
+        KeyboardConstants.iOSKeyButtonHeightLandscape: KeyboardConstants.iOSKeyButtonHeight
+    }
+    
+    /// Returns the system icon for special keys.
     private func systemImageForKey(_ key: String) -> String? {
-        switch key {
-        case SpecialKeys.backspace: return "delete.left"
-        case SpecialKeys.return: return "arrow.turn.down.left"
-        case SpecialKeys.keyboardChange: return "globe"
-        case SpecialKeys.shift, SpecialKeys.shift2: return "shift"
-        case SpecialKeys.unshift, SpecialKeys.unshift2:
-            return capsLock ? "capslock.fill" : "shift.fill"
-        default: return nil
-        }
+        let keyIconMap: [String: String] = [
+            SpecialKeys.backspace: "delete.left",
+            SpecialKeys.return: "arrow.turn.down.left",
+            SpecialKeys.keyboardChange: "globe",
+            SpecialKeys.shift: "shift",
+            SpecialKeys.shift2: "shift",
+            SpecialKeys.unshift: capsLock ? "capslock.fill" : "shift.fill",
+            SpecialKeys.unshift2: capsLock ? "capslock.fill" : "shift.fill"
+        ]
+        return keyIconMap[key]
     }
     
-    /// Returns the appropriate text for keys
+    /// Maps specific keys to alternate text representations.
     private func textForKey(_ key: String) -> String {
-        switch key {
-        case SpecialKeys.numbers2: return SpecialKeys.numbers
-        case SpecialKeys.symbols2: return SpecialKeys.symbols
-        case SpecialKeys.bpd2: return SpecialKeys.bpd
-        default: return key
-        }
+        let textOverrides: [String: String] = [
+            SpecialKeys.numbers2: SpecialKeys.numbers,
+            SpecialKeys.symbols2: SpecialKeys.symbols,
+            SpecialKeys.bpd2: SpecialKeys.bpd
+        ]
+        return textOverrides[key] ?? key
     }
     
-    /// Returns the background color based on the theme
+    /// Returns the background color based on theme.
     private var backgroundColor: Color {
         colorScheme == .dark ? configuration.darkBackground : configuration.lightBackground
     }
-    
-    /// Returns the foreground color based on the theme
+
+    /// Returns the foreground color based on theme.
     private var foregroundColor: Color {
         colorScheme == .dark ? configuration.darkForeground : configuration.lightForeground
     }
-    
-    /// Returns the border color based on the theme
+
+    /// Returns the border color based on theme.
     private var borderColor: Color {
         colorScheme == .dark ? configuration.darkBorder : configuration.lightBorder
     }

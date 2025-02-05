@@ -23,52 +23,67 @@ struct KeyConfiguration {
     
     static func configuration(for key: String, isIPad: Bool) -> KeyConfiguration {
         switch key {
-        case SpecialKeys.shift, SpecialKeys.shift2, SpecialKeys.unshift, SpecialKeys.unshift2, SpecialKeys.backspace, SpecialKeys.keyboardChange, SpecialKeys.numbers, SpecialKeys.numbers2, SpecialKeys.bpd, SpecialKeys.undo, SpecialKeys.redo, SpecialKeys.tab, SpecialKeys.symbols,SpecialKeys.symbols2, SpecialKeys.english:
-            return KeyConfiguration(
-                font: .system(size: isIPad ? 20 : 16, weight: .medium),
-                minHeight: isIPad ? KeyboardConstants.iPadKeyContentHeight : KeyboardConstants.iOSKeyContentHeight,
-                cornerRadius: KeyboardConstants.keyRadius,
-                borderWidth: 0.5,
-                darkBackground: KeyboardConstants.darkSpecialKeyColor,
-                lightBackground: KeyboardConstants.lightSpecialKeyColor,
-                darkForeground: .white,
-                lightForeground: .primary,
-                darkBorder: .clear,
-                lightBorder: .gray.opacity(0.5),
-                alignment: .center,
-                keyPressedColor: KeyboardConstants.keyPressedColor
-            )
-        case SpecialKeys.space:
-            return KeyConfiguration(
-                font: .system(size: isIPad ? 18 : 14),
-                minHeight: isIPad ? KeyboardConstants.iPadKeyContentHeight : KeyboardConstants.iOSKeyContentHeight,
-                cornerRadius: KeyboardConstants.keyRadius,
-                borderWidth: 0.5,
-                darkBackground: KeyboardConstants.darkRegularKeyColor,
-                lightBackground: KeyboardConstants.lightRegularKeyColor,
-                darkForeground: .white,
-                lightForeground: .primary,
-                darkBorder: .clear,
-                lightBorder: .gray.opacity(0.3),
-                alignment: .center,
-                keyPressedColor: KeyboardConstants.keyPressedColor
-            )
-        default:
-            return KeyConfiguration(
-                font: .system(size: isIPad ? 24 : 20),
-                minHeight: isIPad ? KeyboardConstants.iPadKeyContentHeight : KeyboardConstants.iOSKeyContentHeight,
-                cornerRadius: KeyboardConstants.keyRadius,
-                borderWidth: 0.5,
-                darkBackground: KeyboardConstants.darkRegularKeyColor,
-                lightBackground: KeyboardConstants.lightRegularKeyColor,
-                darkForeground: .white,
-                lightForeground: .primary,
-                darkBorder: .clear,
-                lightBorder: .gray.opacity(0.3),
-                alignment: .center,
-                keyPressedColor: KeyboardConstants.keyPressedColor
-            )
+            case SpecialKeys.shift, SpecialKeys.shift2, SpecialKeys.unshift, SpecialKeys.unshift2, SpecialKeys.backspace, SpecialKeys.keyboardChange, SpecialKeys.numbers, SpecialKeys.numbers2, SpecialKeys.bpd, SpecialKeys.undo, SpecialKeys.redo, SpecialKeys.tab, SpecialKeys.symbols,SpecialKeys.symbols2, SpecialKeys.english:
+                return KeyConfiguration(
+                    font: .system(size: isIPad ? 20 : 16, weight: .medium),
+                    minHeight: getkeyContentHeight(),
+                    cornerRadius: KeyboardConstants.keyRadius,
+                    borderWidth: 0.5,
+                    darkBackground: KeyboardConstants.darkSpecialKeyColor,
+                    lightBackground: KeyboardConstants.lightSpecialKeyColor,
+                    darkForeground: .white,
+                    lightForeground: .primary,
+                    darkBorder: .clear,
+                    lightBorder: .gray.opacity(0.5),
+                    alignment: .center,
+                    keyPressedColor: KeyboardConstants.keyPressedColor
+                )
+            case SpecialKeys.space:
+                return KeyConfiguration(
+                    font: .system(size: isIPad ? 18 : 14),
+                    minHeight: getkeyContentHeight(),
+                    cornerRadius: KeyboardConstants.keyRadius,
+                    borderWidth: 0.5,
+                    darkBackground: KeyboardConstants.darkRegularKeyColor,
+                    lightBackground: KeyboardConstants.lightRegularKeyColor,
+                    darkForeground: .white,
+                    lightForeground: .primary,
+                    darkBorder: .clear,
+                    lightBorder: .gray.opacity(0.3),
+                    alignment: .center,
+                    keyPressedColor: KeyboardConstants.keyPressedColor
+                )
+            default:
+                return KeyConfiguration(
+                    font: .system(size: isIPad ? 24 : 20),
+                    minHeight: getkeyContentHeight(),
+                    cornerRadius: KeyboardConstants.keyRadius,
+                    borderWidth: 0.5,
+                    darkBackground: KeyboardConstants.darkRegularKeyColor,
+                    lightBackground: KeyboardConstants.lightRegularKeyColor,
+                    darkForeground: .white,
+                    lightForeground: .primary,
+                    darkBorder: .clear,
+                    lightBorder: .gray.opacity(0.3),
+                    alignment: .center,
+                    keyPressedColor: KeyboardConstants.keyPressedColor
+                )
         }
+    }
+    
+    static func getkeyContentHeight() -> CGFloat {
+        DeviceHelper.isIPad ?
+        DeviceHelper.isLandscape ? KeyboardConstants.iPadKeyContentHeightLandscape : KeyboardConstants.iPadKeyContentHeight
+        : DeviceHelper.isLandscape ? KeyboardConstants.iOSKeyContentHeightLandscape : KeyboardConstants.iOSKeyContentHeight
+    }
+    
+    static func getKeyButtonWidth(screenWidth: CGFloat) -> CGFloat {
+        DeviceHelper.isIPad ? screenWidth / KeyboardConstants.iPadMaxKeyPerRow : screenWidth / KeyboardConstants.iOSMaxKeyPerRow
+    }
+    
+    static func getKeyContentWidth(screenWidth: CGFloat) -> CGFloat {
+        return DeviceHelper.isIPad ? getKeyButtonWidth(screenWidth: screenWidth) - (KeyboardConstants.iPadHorizontalPadding * 2) :
+        getKeyButtonWidth(screenWidth: screenWidth) - (KeyboardConstants.iOSHorizontalPadding * 2)
     }
 }
 

@@ -16,23 +16,26 @@ enum KeyboardConstants {
     // Mark: Iphone
     // keyboard height
     static let iOSMaxHeight: CGFloat = 300
-    static let iOSMinHeight: CGFloat = 230
+    static let iOSMinHeight: CGFloat = 250
     
     static let iOSLandscapeMaxHeight: CGFloat = 200
     static let iOSLandscapeMinHeight: CGFloat = 180
     
     // key padding
     static let iOSVerticalPadding : CGFloat = 5
-    static let iOSHorizontalPadding : CGFloat = 2
+    static let iOSHorizontalPadding : CGFloat = iOSVerticalPadding / 1.75
     
     // max row
-    static let iOSMaxRow = 4
+    static let iOSMaxRow = 4.5
+    static let iOSMaxKeyPerRow: CGFloat = 10
     
     // key height
     static let iOSKeyButtonHeight: CGFloat = iOSMinHeight / CGFloat(iOSMaxRow)
     static let iOSKeyContentHeight: CGFloat = iOSKeyButtonHeight - (iOSVerticalPadding * 2)
     
-    static let iOSMaxKeyHeightLandscape: CGFloat = 35
+    static let iOSKeyButtonHeightLandscape: CGFloat = iOSLandscapeMaxHeight / CGFloat(iOSMaxRow)
+    static let iOSKeyContentHeightLandscape: CGFloat = iOSKeyButtonHeightLandscape - (iOSVerticalPadding * 2)
+   
     
     
     // Mark: - iPad
@@ -45,6 +48,7 @@ enum KeyboardConstants {
     
     // max row
     static let iPadMaxRow = 5
+    static let iPadMaxKeyPerRow: CGFloat = 14
     
     // key padding
     static let iPadVerticalPadding : CGFloat = 5
@@ -54,8 +58,11 @@ enum KeyboardConstants {
     static let iPadKeyButtonHeight: CGFloat = iPadMinHeight / CGFloat(iPadMaxRow)
     static let iPadKeyContentHeight: CGFloat = iPadKeyButtonHeight - (iPadVerticalPadding * 2)
     
+    static let iPadKeyButtonHeightLandscape: CGFloat = iPadLandscapeMaxHeight / CGFloat(iPadMaxRow)
+    static let iPadKeyContentHeightLandscape: CGFloat = iPadKeyButtonHeightLandscape - (iPadVerticalPadding * 2)
+    
     // Radius
-    static let keyRadius: CGFloat = 10
+    static let keyRadius: CGFloat = 6
     static let popoverRadius: CGFloat = 8
     
     // colors

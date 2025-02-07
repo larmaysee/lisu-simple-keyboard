@@ -14,6 +14,8 @@ struct KeyboardView: View {
     @ObservedObject var viewModel: KeyboardViewModel
     let onHeightChanged: (CGFloat) -> Void
     
+    @ObservedObject var orientationManager = OrientationManager()  // ✅ Add orientation manager
+
     private var isIPad: Bool { DeviceHelper.isIPad }
     private var isLandscape: Bool { DeviceHelper.isLandscape }
     
@@ -46,6 +48,10 @@ struct KeyboardView: View {
                 onHeightChanged(
                     kbHeight
                 )
+            }
+            .onReceive(orientationManager.$isLandscape) { isLandscape in
+                // Handle orientation change if needed
+                print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
             }
         }
     }

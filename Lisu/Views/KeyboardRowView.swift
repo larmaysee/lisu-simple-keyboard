@@ -15,7 +15,8 @@ struct KeyboardRow: View {
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.colorScheme) var colorScheme
-    
+    @ObservedObject var orientationManager = OrientationManager()  // ✅ Add orientation manager
+
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
             ForEach(keys, id: \.self) { key in
@@ -32,7 +33,12 @@ struct KeyboardRow: View {
                     maxWidth: getKeyButtonWidth(key: key, rowIndex: rowIndex),
                     maxHeight: getKeyButtonHeight()
                 )
-            }        }
+            }        
+        }
+        .onReceive(orientationManager.$isLandscape) { isLandscape in
+            // Handle orientation change if needed
+            print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
+        }
     }
     
     private func getTestHeight() {

@@ -17,6 +17,7 @@ struct KeyButton: View {
     
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressedState: Bool = false  // ✅ Track press state locally
+    @ObservedObject var orientationManager = OrientationManager()  // ✅ Add orientation manager
 
     var body: some View {
         GeometryReader { _ in
@@ -55,6 +56,10 @@ struct KeyButton: View {
                     viewModel.onReleased()
                 }
             ))
+            .onReceive(orientationManager.$isLandscape) { isLandscape in
+                // Handle orientation change if needed
+                print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
+            }
         }
         .frame(maxWidth: .infinity)
     }

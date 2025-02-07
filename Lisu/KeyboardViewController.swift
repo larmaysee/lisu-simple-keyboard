@@ -18,6 +18,7 @@ class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
     private var hostingController: UIHostingController<KeyboardView>?
     private var keyboardView: UIView?
     private var keyboardViewModel = KeyboardViewModel()
+    private var orientationManager = OrientationManager()  // ✅ Add orientation manager
     
     private var heightObserver: NSObjectProtocol?
 
@@ -32,6 +33,7 @@ class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
         keyboardViewModel.delegate = self
         setupKeyboardView()
         setupHeightObservation()
+        setupOrientationObservation()
     }
     
     private func setupHeightObservation() {
@@ -132,6 +134,13 @@ class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
         super.viewDidAppear(animated)
     }
 
+    private func setupOrientationObservation() {
+        orientationManager.$isLandscape.sink { isLandscape in
+            // Handle orientation change if needed
+            print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
+            self.hostingController?.view.setNeedsLayout()
+        }
+    }
     
     func insertText(_ text: String) {
         textDocumentProxy.insertText(text)

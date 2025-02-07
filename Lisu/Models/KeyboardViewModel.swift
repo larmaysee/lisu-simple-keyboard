@@ -47,11 +47,7 @@ class KeyboardViewModel: ObservableObject {
     
     // Handle both iPhone and iPad key actions
     func handleKeyPress(_ key: String, isDoubleTap: Bool = false) {
-        print("DEBUG: ViewModel received key press: \(key)")
-        pressedKey = key
         let action = parseKeyAction(key)
-        
-        print("DEBUG: Parsed action: \(action)")
         
         switch action {
         case .character(let char):
@@ -118,8 +114,14 @@ class KeyboardViewModel: ObservableObject {
             break
         }
         
-        resetPressedKey()
+        onReleased()
     }
+    
+    func onPressed(_ key: String) {
+        print("onPressed: \(key)")
+        pressedKey = key
+    }
+
 
     private func resetShiftState() {
         if isShifted && !capsLock{
@@ -142,6 +144,7 @@ class KeyboardViewModel: ObservableObject {
         case SpecialKeys.numbers, SpecialKeys.numbers2: return .numbers
         case SpecialKeys.symbols, SpecialKeys.symbols2: return .symbols
         case SpecialKeys.bpd, SpecialKeys.bpd2: return .layoutChange("default")
+        case SpecialKeys.english: return .keyboardChange
         default:
             return .character(key)
         }
@@ -162,7 +165,7 @@ class KeyboardViewModel: ObservableObject {
         }
     }
     
-    private func resetPressedKey() {
+    func onReleased() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             self?.pressedKey = nil
         }

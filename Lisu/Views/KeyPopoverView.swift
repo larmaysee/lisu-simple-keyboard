@@ -8,7 +8,7 @@ struct KeyPopoverView: View {
         ZStack {
             // Background shape with arrow
             VStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: KeyboardConstants.keyRadius)
+                RoundedRectangle(cornerRadius: KeyboardConstants.popoverRadius)
                     .fill(Color(UIColor.secondarySystemBackground))
                     .frame(width: width * 1.2, height: 35)
                     .shadow(color: Color.primary.opacity(0.15), radius: 1, x: 0, y: 1)

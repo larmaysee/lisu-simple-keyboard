@@ -9,12 +9,18 @@ import SwiftUI
 
 struct TapGestureModifier: ViewModifier {
     let onTap: () -> Void
+    let onPress: () -> Void
+    let onRelease: () -> Void
     
     func body(content: Content) -> some View {
         content
             .simultaneousGesture(
-                TapGesture(count: 1)
-                    .onEnded { _ in onTap() }
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in onPress() }
+                    .onEnded { _ in
+                        onTap()
+                        onRelease()
+                    }
             )
     }
 }

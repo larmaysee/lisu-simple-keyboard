@@ -120,7 +120,7 @@ struct KeyboardLayoutConfig {
         [tab,"[","]","{","}","#","%","^","*","+","=", "\\","|", "~"],
         [undo,"-","/",":",";","(",")","$","&","@","£","¥", `return`],
         [redo,"…",".",",","?","!","'","\"","_","€", "π"],
-        [keyboardChange, bpd,symbols, space, ".", numbers2, symbols2]
+        [keyboardChange, bpd,symbols, space, ".", bpd2, symbols2]
     ])
     
     private static let ipadSymbolLayout = KeyboardLayout(rows: [

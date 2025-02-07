@@ -22,10 +22,10 @@ struct KeyboardRow: View {
                 KeyButton(
                     key: key,
                     capsLock: viewModel.capsLock,
-                    isPressed: viewModel.pressedKey == key,
                     action: { viewModel.handleKeyPress(key) },
                     doubleTapAction: { viewModel.handleKeyPress(key, isDoubleTap: true) },
-                    configuration: keyConfiguration(for: key)
+                    configuration: keyConfiguration(for: key),
+                    viewModel: viewModel
                 )
                 .frame(
                     minWidth: getKeyButtonWidth(key: key, rowIndex: rowIndex),
@@ -103,8 +103,8 @@ struct KeyboardRow: View {
             let mediumFunction: CGFloat
             let smallFunction: CGFloat
             
-            static let iPadPortrait = KeyWidthMultipliers(space: 0.4, largeFunction: 2.5, mediumFunction: 2.0, smallFunction: 1.5)
-            static let iPadLandscape = KeyWidthMultipliers(space: 0.5, largeFunction: 3.0, mediumFunction: 2.5, smallFunction: 2.0)
+            static let iPadPortrait = KeyWidthMultipliers(space: 0.4, largeFunction: 2.0, mediumFunction: 1.5, smallFunction: 1.3)
+            static let iPadLandscape = KeyWidthMultipliers(space: 0.4, largeFunction: 2.0, mediumFunction: 1.5, smallFunction: 1.3)
             
             static let iPhonePortrait = KeyWidthMultipliers(space: 0.4, largeFunction: 1.3, mediumFunction: 1.2, smallFunction: 1.0)
             static let iPhoneLandscape = KeyWidthMultipliers(space: 0.4, largeFunction: 1.3, mediumFunction: 1.2, smallFunction: 1.0)
@@ -143,7 +143,7 @@ struct KeyboardRow: View {
                 
             case SpecialKeys.return:
                 return isIPad
-                ? calculateWidth(multipliers.largeFunction)
+                ? calculateWidth(multipliers.mediumFunction)
                 : calculateWidth(multipliers.mediumFunction)
                 
             case SpecialKeys.shift,
@@ -185,8 +185,7 @@ extension KeyConfiguration {
             lightForeground: self.lightForeground,
             darkBorder: self.darkBorder,
             lightBorder: self.lightBorder,
-            alignment: alignment ?? self.alignment,
-            keyPressedColor: self.keyPressedColor
+            alignment: alignment ?? self.alignment
         )
     }
 }

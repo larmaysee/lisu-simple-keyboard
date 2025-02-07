@@ -10,30 +10,33 @@ import SwiftUI
 struct KeyButton: View {
     let key: String
     let capsLock: Bool
-    let isPressed: Bool
     let action: () -> Void
     let doubleTapAction: () -> Void
     let configuration: KeyConfiguration
+    let viewModel: KeyboardViewModel
     
     @Environment(\.colorScheme) var colorScheme
-    
+    @State private var isPressedState: Bool = false  // ✅ Track press state locally
+
     var body: some View {
         GeometryReader { _ in
-            Button(action: {}) {
+            Button(action: {
+            }) {
                 keyContent
                     .padding(DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding * 2 : KeyboardConstants.keyContentPadding / 2)
                     .font(configuration.font)
                     .frame(maxWidth: .infinity, minHeight: configuration.minHeight, alignment: configuration.alignment)
-                    .background(backgroundColor)
-                    .foregroundColor(foregroundColor)
+                    .background(isPressedState ? pressedBackgroundColor : backgroundColor) // ✅ Change background when pressed
+                    .foregroundColor(isPressedState ? pressedForegroundColor : foregroundColor) // ✅ Change text color when pressed
                     .cornerRadius(configuration.cornerRadius)
+                    .shadow(color: Color.black.opacity(0.2), radius: 0.5, x: 0, y: 1.5)
                     .overlay(
                         RoundedRectangle(cornerRadius: configuration.cornerRadius)
                             .stroke(borderColor, lineWidth: configuration.borderWidth)
                     )
                     .padding(.horizontal, DeviceHelper.isIPad ? KeyboardConstants.iPadHorizontalPadding : KeyboardConstants.iOSHorizontalPadding)
             }
-            .buttonStyle(KeyButtonStyle(isPressed: isPressed))
+            .buttonStyle(KeyButtonStyle(isPressed: isPressedState))
             .frame(
                 maxWidth: .infinity,
                 minHeight: getKeyButtonHeight(),
@@ -41,11 +44,21 @@ struct KeyButton: View {
             )
             .contentShape(Rectangle())
             .background(.gray.opacity(0.01))
-            .modifier(TapGestureModifier(onTap: action))
+            .modifier(TapGestureModifier(
+                onTap: action,
+                onPress: {
+                    isPressedState = true  // ✅ Set to true when pressed
+                    viewModel.onPressed(key)
+                },
+                onRelease: {
+                    isPressedState = false  // ✅ Set to false when released
+                    viewModel.onReleased()
+                }
+            ))
         }
         .frame(maxWidth: .infinity)
     }
-    
+
     /// Determines the content for the key (icon or text).
     @ViewBuilder
     private var keyContent: some View {
@@ -55,8 +68,7 @@ struct KeyButton: View {
             Text(textForKey(key))
         }
     }
-    
-    // MARK: - Key Height Calculation
+
     private func getKeyButtonHeight() -> CGFloat {
         DeviceHelper.isIPad ?
             DeviceHelper.isLandscape ?
@@ -64,8 +76,7 @@ struct KeyButton: View {
         : DeviceHelper.isLandscape ?
         KeyboardConstants.iOSKeyButtonHeightLandscape: KeyboardConstants.iOSKeyButtonHeight
     }
-    
-    /// Returns the system icon for special keys.
+
     private func systemImageForKey(_ key: String) -> String? {
         let keyIconMap: [String: String] = [
             SpecialKeys.backspace: "delete.left",
@@ -78,8 +89,7 @@ struct KeyButton: View {
         ]
         return keyIconMap[key]
     }
-    
-    /// Maps specific keys to alternate text representations.
+
     private func textForKey(_ key: String) -> String {
         let textOverrides: [String: String] = [
             SpecialKeys.numbers2: SpecialKeys.numbers,
@@ -88,18 +98,23 @@ struct KeyButton: View {
         ]
         return textOverrides[key] ?? key
     }
-    
-    /// Returns the background color based on theme.
+
+    private var pressedBackgroundColor: Color {
+        colorScheme == .dark ? KeyboardConstants.lightRegularKeyColor : KeyboardConstants.darkRegularKeyColor
+    }
+
+    private var pressedForegroundColor: Color {
+        colorScheme == .dark ? configuration.lightForeground : configuration.darkForeground
+    }
+
     private var backgroundColor: Color {
         colorScheme == .dark ? configuration.darkBackground : configuration.lightBackground
     }
 
-    /// Returns the foreground color based on theme.
     private var foregroundColor: Color {
         colorScheme == .dark ? configuration.darkForeground : configuration.lightForeground
     }
 
-    /// Returns the border color based on theme.
     private var borderColor: Color {
         colorScheme == .dark ? configuration.darkBorder : configuration.lightBorder
     }

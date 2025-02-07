@@ -17,12 +17,12 @@ struct KeyButton: View {
     
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressedState: Bool = false  // ✅ Track press state locally
+    @State private var backspaceTimer: Timer?
     @ObservedObject var orientationManager = OrientationManager()  // ✅ Add orientation manager
 
     var body: some View {
         GeometryReader { _ in
-            Button(action: {
-            }) {
+            Button(action: action) {
                 keyContent
                     .padding(DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding * 2 : KeyboardConstants.keyContentPadding / 2)
                     .font(configuration.font)
@@ -45,19 +45,40 @@ struct KeyButton: View {
             )
             .contentShape(Rectangle())
             .background(.gray.opacity(0.01))
-            .modifier(TapGestureModifier(
-                onTap: action,
-                onPress: {
-                    isPressedState = true  // ✅ Set to true when pressed
-                    viewModel.onPressed(key)
-                },
-                onRelease: {
-                    isPressedState = false  // ✅ Set to false when released
-                    viewModel.onReleased()
-                }
-            ))
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !isPressedState {
+                            isPressedState = true
+                            if key == SpecialKeys.backspace {
+                                startBackspaceTimer()
+                            }
+                        }
+                    }
+                    .onEnded { _ in
+                        if isPressedState {
+                            isPressedState = false
+                            stopBackspaceTimer()
+                        }
+                    }
+            )
+            .onDisappear {
+                stopBackspaceTimer()
+            }
         }
         .frame(maxWidth: .infinity)
+    }
+
+    private func startBackspaceTimer() {
+        backspaceTimer?.invalidate()
+        backspaceTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+            action()
+        }
+    }
+    
+    private func stopBackspaceTimer() {
+        backspaceTimer?.invalidate()
+        backspaceTimer = nil
     }
 
     /// Determines the content for the key (icon or text).

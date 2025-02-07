@@ -21,6 +21,7 @@ class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
     private var orientationManager = OrientationManager()  // ✅ Add orientation manager
     
     private var heightObserver: NSObjectProtocol?
+    private var backspaceTimer: Timer?
 
     deinit {
         if let observer = heightObserver {

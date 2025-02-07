@@ -21,7 +21,7 @@ struct KeyConfiguration {
     let alignment: Alignment
     static func configuration(for key: String, isIPad: Bool) -> KeyConfiguration {
         switch key {
-            case SpecialKeys.shift, SpecialKeys.shift2, SpecialKeys.unshift, SpecialKeys.unshift2, SpecialKeys.backspace, SpecialKeys.keyboardChange, SpecialKeys.numbers, SpecialKeys.numbers2, SpecialKeys.bpd,SpecialKeys.bpd2, SpecialKeys.undo, SpecialKeys.redo, SpecialKeys.tab, SpecialKeys.symbols,SpecialKeys.symbols2, SpecialKeys.english:
+            case SpecialKeys.shift, SpecialKeys.shift2, SpecialKeys.unshift, SpecialKeys.unshift2, SpecialKeys.backspace, SpecialKeys.keyboardChange, SpecialKeys.numbers, SpecialKeys.numbers2, SpecialKeys.bpd,SpecialKeys.bpd2, SpecialKeys.undo, SpecialKeys.redo, SpecialKeys.tab, SpecialKeys.symbols,SpecialKeys.symbols2, SpecialKeys.english, SpecialKeys.return:
                 return KeyConfiguration(
                     font: .system(size: isIPad ? 20 : 16, weight: .medium),
                     minHeight: getkeyContentHeight(),

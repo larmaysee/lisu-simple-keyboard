@@ -114,7 +114,7 @@ class KeyboardViewModel: ObservableObject {
             break
         }
         
-        onReleased()
+        resetPressedKey()
     }
     
     func onPressed(_ key: String) {
@@ -165,10 +165,8 @@ class KeyboardViewModel: ObservableObject {
         }
     }
     
-    func onReleased() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            self?.pressedKey = nil
-        }
+    func resetPressedKey() {
+        pressedKey = nil
     }
     
     private func triggerHaptic(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {

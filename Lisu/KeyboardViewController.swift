@@ -137,9 +137,21 @@ class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
     private func setupOrientationObservation() {
         orientationManager.$isLandscape.sink { isLandscape in
             // Handle orientation change if needed
-            print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
+            print("Orientation changed: controller \(isLandscape ? "Landscape" : "Portrait")")
+            self.updateHeightForOrientation(isLandscape: isLandscape)
             self.hostingController?.view.setNeedsLayout()
         }
+    }
+    
+    private func updateHeightForOrientation(isLandscape: Bool) {
+        let heightRatio = isLandscape ? KeyboardConstants.heightRatioLandscape : KeyboardConstants.heightRatioPortrait
+        
+        print("Height ratio: \(heightRatio)")
+        
+        let newHeight = view.bounds.height * heightRatio
+        
+        print("New height: \(newHeight)")
+        updateHeightConstraint(newHeight)
     }
     
     func insertText(_ text: String) {

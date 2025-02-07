@@ -56,10 +56,6 @@ struct KeyButton: View {
                     viewModel.onReleased()
                 }
             ))
-            .onReceive(orientationManager.$isLandscape) { isLandscape in
-                // Handle orientation change if needed
-                print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
-            }
         }
         .frame(maxWidth: .infinity)
     }

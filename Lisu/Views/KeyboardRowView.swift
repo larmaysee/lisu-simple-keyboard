@@ -12,6 +12,8 @@ struct KeyboardRow: View {
     let viewModel: KeyboardViewModel
     let isIPad: Bool
     let rowIndex: Int
+    let onHeightChanged: (CGFloat) -> Void
+    let keyboardHieght: CGFloat
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.colorScheme) var colorScheme
@@ -37,7 +39,8 @@ struct KeyboardRow: View {
         }
         .onReceive(orientationManager.$isLandscape) { isLandscape in
             // Handle orientation change if needed
-            print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
+            print("Orientation changed: keyboardrow \(isLandscape ? "Landscape" : "Portrait")")
+            onHeightChanged(keyboardHieght)
         }
     }
     

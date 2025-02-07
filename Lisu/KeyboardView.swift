@@ -31,7 +31,9 @@ struct KeyboardView: View {
                         keys: currentLayout.rows[index],
                         viewModel: viewModel,
                         isIPad: DeviceHelper.isIPad,
-                        rowIndex: index
+                        rowIndex: index,
+                        onHeightChanged: onHeightChanged,
+                        keyboardHieght: calculateKeyboardHeight(geometry: geometry)
                     )
                 }
             }
@@ -51,7 +53,11 @@ struct KeyboardView: View {
             }
             .onReceive(orientationManager.$isLandscape) { isLandscape in
                 // Handle orientation change if needed
+                let kbHeight = calculateKeyboardHeight(geometry: geometry)
                 print("Orientation changed: \(isLandscape ? "Landscape" : "Portrait")")
+                onHeightChanged(
+                    kbHeight
+                )
             }
         }
     }

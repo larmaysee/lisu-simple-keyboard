@@ -44,6 +44,11 @@ class KeyboardViewModel: ObservableObject {
     @Published var capsLock: Bool = false
 
     weak var delegate: KeyboardViewModelDelegate?
+
+    @Published var undoStack: [String] = []  // Stores previous words
+    @Published var redoStack: [String] = []  // Stores undone words
+
+    var textDocumentProxy: UITextDocumentProxy?
     
     // Handle both iPhone and iPad key actions
     func handleKeyPress(_ key: String, isDoubleTap: Bool = false) {
@@ -89,6 +94,7 @@ class KeyboardViewModel: ObservableObject {
             
         case .space:
             delegate?.insertText(" ")
+            saveWordState()
             resetShiftState()
             
         case .tab:
@@ -96,11 +102,11 @@ class KeyboardViewModel: ObservableObject {
             resetShiftState()
             
         case .undo:
-            delegate?.handleUndo()
+            undo()
             resetShiftState()
             
         case .redo:
-            delegate?.handleRedo()
+            redo()
             resetShiftState()
             
         case .keyboardChange:
@@ -122,10 +128,70 @@ class KeyboardViewModel: ObservableObject {
         pressedKey = key
     }
 
+    // Capture the latest word entered
+    func saveWordState() {
+        guard let text = textDocumentProxy?.documentContextBeforeInput, !text.isEmpty else { return }
+
+        let words = text.split(separator: " ").map { String($0) }
+        if let lastWord = words.last {
+            undoStack.append(lastWord)
+        }
+
+        redoStack.removeAll() // Reset redo stack on new input
+    }
+
+    // Undo last word
+    func undo() {
+        guard !undoStack.isEmpty else { return }
+        
+        if let text = textDocumentProxy?.documentContextBeforeInput {
+            redoStack.append(text) // Save current state for redo
+        }
+
+        let removedWord = undoStack.popLast() ?? ""
+        removeLastWord(removedWord)
+    }
+
+    // Redo last undone word
+    func redo() {
+        guard !redoStack.isEmpty else { return }
+
+        if let text = textDocumentProxy?.documentContextBeforeInput {
+            undoStack.append(text) // Save current state for undo
+        }
+
+        let restoredWord = redoStack.popLast() ?? ""
+        textDocumentProxy?.insertText(" " + restoredWord)
+    }
+
+    // Remove the last word from the text input
+    private func removeLastWord(_ word: String) {
+        guard let text = textDocumentProxy?.documentContextBeforeInput else { return }
+        let trimmedText = text.dropLast(word.count)
+        replaceText(with: String(trimmedText))
+    }
+
+    // Replace text in the textDocumentProxy
+    private func replaceText(with newText: String) {
+        let length = textDocumentProxy?.documentContextBeforeInput?.count ?? 0
+        textDocumentProxy?.adjustTextPosition(byCharacterOffset: -length)
+        textDocumentProxy?.insertText(newText)
+    }
+
 
     private func resetShiftState() {
         if isShifted && !capsLock{
             isShifted = false
+            keyboardState = .default
+        }
+
+        if showNumbers {
+            showNumbers = false
+            keyboardState = .default
+        }
+
+        if showSymbols {
+            showSymbols = false
             keyboardState = .default
         }
     }

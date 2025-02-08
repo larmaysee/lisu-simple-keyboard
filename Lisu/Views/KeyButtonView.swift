@@ -83,7 +83,7 @@ struct KeyButton: View {
     }
 
     private func getPadding (rowIndex: Int) -> CGFloat {
-        DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding * 2 : KeyboardConstants.keyContentPadding / 2
+        DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding : KeyboardConstants.keyContentPadding / 2
     }
 
     private func startBackspaceTimer() {

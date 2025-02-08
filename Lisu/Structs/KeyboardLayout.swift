@@ -125,8 +125,8 @@ struct KeyboardLayoutConfig {
     
     private static let ipadSymbolLayout = KeyboardLayout(rows: [
         ["±","≠","∞","≈","∅","∈","∏","∑","√","∇","ℵ","⊂","⊃", backspace],
-        [tab,"∧","∨","∩","∪","∴","∵","⊢","⊨","≡","≤","≥","⊆","⊇"],
-        [undo,"¬","⇒","⇔","∀","∃","∂","∫","∮","ℜ","ℑ","℘", `return`],
+        [tab,"∧","∨","∆","π","∴","∵","⊢","⊨","≡","≤","≥","⊆","⊇"],
+        [undo,"¬","⇒","⇔","å","´","∂","∫","∮","ℜ","ℑ","℘", `return`],
         [redo,"←","→","↑","↓","↔","↦","↵","⇄","⇤","⇥", "⌘"],
         [keyboardChange, bpd, numbers,  space, "⌥", numbers2, bpd2]
     ])

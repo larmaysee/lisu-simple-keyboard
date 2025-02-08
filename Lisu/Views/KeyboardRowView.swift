@@ -28,7 +28,8 @@ struct KeyboardRow: View {
                     action: { viewModel.handleKeyPress(key) },
                     doubleTapAction: { viewModel.handleKeyPress(key, isDoubleTap: true) },
                     configuration: keyConfiguration(for: key),
-                    viewModel: viewModel
+                    viewModel: viewModel,
+                    rowIndex: rowIndex
                 )
                 .frame(
                     minWidth: getKeyButtonWidth(key: key, rowIndex: rowIndex),
@@ -166,7 +167,7 @@ struct KeyboardRow: View {
                 return calculateWidth(multipliers.mediumFunction)
                 
             case SpecialKeys.numbers, SpecialKeys.bpd:
-            return isIPad ? calculateWidth(multipliers.mediumFunction) : calculateWidth(multipliers.mediumFunction)
+                return isIPad ? calculateWidth(multipliers.mediumFunction) : calculateWidth(multipliers.mediumFunction)
                 
             default:
                 return nil

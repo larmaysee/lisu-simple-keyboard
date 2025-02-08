@@ -24,4 +24,9 @@ struct SpecialKeys {
     static let redo = "Redo"
     static let tab = "Tab"
     static let english = "English"
+
+    static let keyA = "ꓮ"
+    static let keyA2 = "ꓯ"
+    static let keyL = "ꓡ"
+    static let keyL2 = "ꓶ"
 }

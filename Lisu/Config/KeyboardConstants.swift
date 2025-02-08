@@ -22,7 +22,7 @@ enum KeyboardConstants {
     static let iOSLandscapeMinHeight: CGFloat = 180
     
     // key padding
-    static let iOSVerticalPadding : CGFloat = 8
+    static let iOSVerticalPadding : CGFloat = 6
     static let iOSVerticalPaddingLandscape : CGFloat = 8
     static let iOSHorizontalPadding : CGFloat = iOSVerticalPadding / 2
     
@@ -32,7 +32,7 @@ enum KeyboardConstants {
     
     // key height
     static let iOSKeyButtonHeight: CGFloat = iOSMinHeight / CGFloat(iOSMaxRow)
-    static let iOSKeyContentHeight: CGFloat = iOSKeyButtonHeight - (iOSVerticalPadding * 2)
+    static let iOSKeyContentHeight: CGFloat = iOSKeyButtonHeight - (iOSVerticalPadding * 2.5)
     
     static let iOSKeyButtonHeightLandscape: CGFloat = iOSLandscapeMaxHeight / CGFloat(iOSMaxRow)
     static let iOSKeyContentHeightLandscape: CGFloat = iOSKeyButtonHeightLandscape - (iOSVerticalPaddingLandscape * 2)

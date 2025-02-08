@@ -14,6 +14,7 @@ struct KeyButton: View {
     let doubleTapAction: () -> Void
     let configuration: KeyConfiguration
     let viewModel: KeyboardViewModel
+    let rowIndex: Int
     
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressedState: Bool = false  // ✅ Track press state locally
@@ -35,7 +36,9 @@ struct KeyButton: View {
                         RoundedRectangle(cornerRadius: configuration.cornerRadius)
                             .stroke(borderColor, lineWidth: configuration.borderWidth)
                     )
-                    .padding(.horizontal, DeviceHelper.isIPad ? KeyboardConstants.iPadHorizontalPadding : KeyboardConstants.iOSHorizontalPadding)
+                    .padding(
+                        .horizontal,getPadding(rowIndex: rowIndex)
+                    )
             }
             .buttonStyle(KeyButtonStyle(isPressed: isPressedState))
             .frame(
@@ -44,7 +47,7 @@ struct KeyButton: View {
                 maxHeight: getKeyButtonHeight()
             )
             .contentShape(Rectangle())
-            .background(.gray.opacity(0.01))
+            .background(.gray.opacity(0.001))
             .simultaneousGesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { _ in
@@ -69,6 +72,20 @@ struct KeyButton: View {
         .frame(maxWidth: .infinity)
     }
 
+    /// Determines the content for the key (icon or text).
+    @ViewBuilder
+    private var keyContent: some View {
+        if let systemImage = systemImageForKey(key) {
+            Image(systemName: systemImage)
+        } else {
+            Text(textForKey(key))
+        }
+    }
+
+    private func getPadding (rowIndex: Int) -> CGFloat {
+        DeviceHelper.isIPad ? KeyboardConstants.keyContentPadding * 2 : KeyboardConstants.keyContentPadding / 2
+    }
+
     private func startBackspaceTimer() {
         backspaceTimer?.invalidate()
         backspaceTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
@@ -79,16 +96,6 @@ struct KeyButton: View {
     private func stopBackspaceTimer() {
         backspaceTimer?.invalidate()
         backspaceTimer = nil
-    }
-
-    /// Determines the content for the key (icon or text).
-    @ViewBuilder
-    private var keyContent: some View {
-        if let systemImage = systemImageForKey(key) {
-            Image(systemName: systemImage)
-        } else {
-            Text(textForKey(key))
-        }
     }
 
     private func getKeyButtonHeight() -> CGFloat {

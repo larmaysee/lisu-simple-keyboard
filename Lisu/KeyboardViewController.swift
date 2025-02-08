@@ -162,7 +162,7 @@ class KeyboardViewController: UIInputViewController, KeyboardViewModelDelegate {
     func deleteBackward() {
         textDocumentProxy.deleteBackward()
     }
-    
+
     func handleTab() {
         insertText("\t")
     }
